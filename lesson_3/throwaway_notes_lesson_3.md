@@ -595,25 +595,65 @@ Although secure, the same-origin policy is a problem for web developers who have
 * Cross-origin Resource Sharing, or **CORS**, was developed to deal with issues arising from the Same-origin policy
 * CORS is a mechanism that allows cross-origin interactions that would normally be restricted to take place
 * CORS works by adding new HTTP headers that allow servers to serve resources cross-origin to certain specified origins
-* When the client receives some JavaScript from a server, and that JS subsequently asks for a resource in a cross-origin server, then the web browser sends an `Origin:` header to the cross-origin server when it requests the resource; if the cross-origin server is configured to allow this cross-origin request from that specific origin, then it must include the appropriate `Access-Control-Allow-Origin` header in its response. If the header is present and grants access, then the web browser will accept the response and process it -- if the header is omitted or denies access, the browser won't accept and process the response.
+* When the client receives some JavaScript from a server, and that JS subsequently asks for a resource in a cross-origin server, then the web browser sends an `Origin:` header to the cross-origin server when it requests the resource; if the cross-origin server is configured to allow this cross-origin request from that specific origin, then it must include the appropriate `Access-Control-Allow-Origin:` header in its response. If the header is present and grants access, then the web browser will accept the response and process it -- if the header is omitted or denies access, the browser won't accept and process the response.
 
 The same-origin policy is an important guard against **session hijacking** attacks and serves as a cornerstone of web application security.
 
+
+
+NB: from wikipedia again: the SOP (same-origin policy) "prevents a malicious script on one page from obtaining access to sensitive data on another web page through that page's Document Object Model (DOM). This mechanism bears a particular significance for modern web applications that extensively depend on HTTPS cookies to maintain authenticated user sessions, as servers act based on the HTTP cookie information to reveal sensitive information or take state-changing actions. **A strict separation between content provided by unrelated sites must be maintained on the client-side to prevent the loss of data confidentiality or integrity**... **The same-origin policy applies only to scripts. This means that resources such as images, CSS, and dynamically loaded scripts can be accessed across origins via the corresponding HTML tags**"
+
 **<u>Session Hijacking</u>**
 
+'A session id serves as that unique token used to identify each session.'
+
+NB: In technical terminology, 'Session' and 'Token' -based Authentication are different techniques. Session-based Authentication uses cookies, and is what is being described here
+
+A session id is a unique token issued by a sever. The client logs in with their username and password, usually sent as a `POST` request to the server. The session id is usually implemented as a randomized string and is delivered by the server in the form of a cookie in the `Set-Cookie` header of the response. The client stores this cookie. Thereafter, when the client makes a request, the cookie is sent to the server in the `Cookie` header, authenticating that the client is a specific client. The server can then use the cookie to find the client/user's data in its database.
+
+If an attacker gets hold of the session id, both the attacker and the user now share the same session and both can access the web application. In session hijacking, the user won't even know that the attacker has their session id, and the attacker can access the user's information without even needing their username or password.
+
+**<u>Counter-measures for Session Hijacking</u>**
+
+* Resetting sessions. The authentication system is set up such that a successful login request, where the user enters name and password and submits a form, renders the old session id invalid and creates a new one. With this system in place, on the next request that is deemed sensitive, the application will require a new login; if it is the victim that has made the request, they simply log in again, a new session id is issued, and the attacker can no longer access their session. Many websites implement this technique, and ensure that users re-authenticate whenever sensitive data is involved, such as charging a credit card or deleting the account.
+
+* Expiration time on sessions. Sessions that don't expire give the attacker an infinite time period to pose as the user. If a session expires after 30 minutes, the attacker has a far narrower window to access the app as the user.
+* HTTPS across the entire app. HTTPS minimizes the chance that an attacker can get the session id
+
+ 
+
+**<u>Cross-Site Scripting (XSS)</u>**
+
+* Cross-site scripting, or XSS, is a type of attack that happens when you allow users to input text that ends up being displayed by the site and do not sanitize the input text for HTML and JavaScript code.
+* If the server side doesn't do any sanitization of the input, the user input will be injected into the page contexts, and then client-side the browser will *interprest the HTML and JavaScript and execute it*.
+* Attackers can craft ingeniously malicious HTML and JavaScript and be very destructive to both the server as well as future visitors of the page
+* An attacker can use JavaScript to grab the session id of every future visitor of the site
+* The malicious code will bypass the same-origin policy because the code lives on the site
+
+**<u>Potential solutions for cross-site scripting</u>**
+
+* Always sanitize user input. This can mean eliminating problem HTML tags such as `<script>`, or by disallowing HTML and JavaScript input text altogether.
+* Escape all input text when displaying it. This can mean converting all special characters to HTML entities, which tells the client to display those characters rather than process them
 
 
 
+## 3:5 Some Background and Diagrams ##
+
+**<u>Client-Server</u>**
+
+To simplify server-side infrastructure, there are three primary components to be aware of:
+
+* **Web Server** - a web server is typically a server that responds to requests for static assets: files, images, css, javascript, etc. These requests don't require any data processing, so they can be handled by a simple web server
+* **Application Server** - an application server is typically where application or business logic resides, and is where more complicated requests are handled. This is where your server-side code lives when deployed
+* **Data Store** - the application server will often consult a persistent *data store*, like a relational database, to retrieve or create data. Data stores can also be simple files, key/value stores, document stores, and many other variations, as long as it can save data in some format for later retrieval and processing. Regardless of how the persistent data store is implemented, it can be used to *persist* our data between stateless request/response cycles. That is, the data doesn't go away after each cycle, but persists inside the data store
+
+**<u>HTTP over TCP/IP</u>**
+
+HTTP is relying (most of the time) on a TCP/IP connection. HTTP operates at the application layer and is concerned with structuring the messages that are exchanged between applications; TCP/IP ensures that the request/response cycle gets completed between your browser and the server.
 
 
 
-
-
-
-
-
-
-
+## 3:6 URLs ##
 
 
 
