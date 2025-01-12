@@ -655,7 +655,17 @@ HTTP is relying (most of the time) on a TCP/IP connection. HTTP operates at the 
 
 ## 3:6 URLs ##
 
+'For ease of communication ... it's probably best to just stick with URL ... as far as we're concerned in HTTP, everything is a URL, but some sources may talk about URIs.'
 
+video:
 
+Uniform - relates to a network based resource and provides some standard or uniform way to reference the presence, name and discrete location of that resource
 
+Uniformity is very import, for instance, when designing an Application Programming Interface for a web application. [APIs are very important in building web applications because of the massively distributed and diverse systems involved in web infrastructure]
+
+Uniform Resource Identifier - most generic term, can be a URN or a URL
+
+Uniform Resource Name
+
+Uniform Resource Locator
 
