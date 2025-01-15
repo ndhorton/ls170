@@ -669,3 +669,191 @@ Uniform Resource Name
 
 Uniform Resource Locator
 
+**<u>Schemes and Protocols</u>**
+
+The URL component preceding the `://` is often mis-called the protocol but is actually called the **scheme**. The scheme may name a *family* of protocols, such as `http`, but never names a specific protocol, such as `HTTP 1.1`. When we refer to HTTP as a protocol, however, it would surely be pedantry to insist that HTTP is a family of protocols.
+
+'In the more general context of a URI, a scheme name is defined as "a specification for assigning identifiers within that scheme", and isn't related to a particular protocol. A full list of URI scheme names can be found on the IANA website.
+
+The canonical form of a scheme name is lowercase. The convention is to refer to scheme names in lowercase, e.g. `http`, and protocol names in uppercase, e.g. HTTP.
+
+**<u>URLs and Filepaths</u>**
+
+* The concept of a URL was derived to a large extent from the combination fo domain names, which already existed when Tim Berners-Lee first conceived of his idea for the web, and Unix-style file paths. The intention of the web at this point was to provide access to the content of static HTML files.
+* In the early days of the Web, the path portion of a URL represented a physical file location on the Web server.
+* The web has evolved a lot since those early days, and much of the content consumed on the web is now generated dynamically.
+* Often this means that server-side frameworks or applications will combine templates with stored data to produce "pages" that then form the body of HTTP responses.
+* More recently, client-side frameworks have grown in popularity. With these, the HTTP response from the server contains raw data that is then manipulated by an application running in the browser to produce a page for the browser to render.
+* Both client-side and server-side frameworks and applications make use of the URL path in a way that is dictated by the application logic.
+* Thus, nowadays, the path often bears no relationship to an underlying file structure on the server
+* The way the path is used will vary, but typically involves match the path to a pre-defined "route" which then executes some specific logic.
+
+
+
+## 3:8 The Request Response Cycle ##
+
+When we look at the HTTP request response cycle here, we are usually talking about HTTP client and server as software, or processes. So the client is generally a web browser running on the client machine, and the server is generally some kind of software running on the server machine.
+
+1. Creating a request, user types in a URL in address bar of browser
+
+2. Browser creates and sends HTTP request, which needs certain information:
+
+   (this schema is conceptual, not technical)
+
+   * `Method`
+   * `Path`
+   * `Parameters ` (optional)
+   * `Headers`
+     * `Host` (required since HTTP 1.1)
+   * `Body` (optional)
+
+3. Server performs some work (say, a Ruby application verifies user session, loads tasks from database, renders some HTML)
+
+4. Server creates and sends an HTTP response
+
+   * `Status` - numeric status code and status text
+   * `Headers`
+     * `Content-Type`
+   * `Body` - HTML page for instance
+
+`GET` - fetching data from the server, the 'default' method, the one that is used when we type a URL into a browser address bar
+
+`POST` - pushing data back to the server
+
+
+
+**Practice Problems**
+
+1. We need a Method, a Path (and since HTTP 1.1 we need a Host header)
+
+Optionally, we can have Parameters, (other) Headers, and a Body
+
+"The HTTP method and the path are required, and form part of what is known as the start-line or request-line. As of HTTP 1.0, the HTTP version also forms part of the request-line. The `Host` header is a required component since HTTP 1.1. Parameters, all other headers, and message body are optional."
+
+"Technically speaking the 'path' portion of the request-line is known as the 'request-URI', and incorporates the actual path to the resource and the optional parameters if present. In practice, most people simply refer to this part of the request-line as the 'path'"
+
+2. The HTTP response needs to have a status code and status text. Most often, there will be a `Content-Type` header. We then have other optional Headers. And a response Body (which probably is optional but usually present?)
+
+"A status line with a status code is required. Headers and body are optional"
+
+3. `GET` is used to fetch data from a server, `POST` generally sends data to a server.
+
+"`GET` **requests should only retrieve content from the server.** They can generally be thought of as 'read only' operations. However, there are some subtle exceptions to this rule. For example, consider a webpage that tracks how many times it is viewed. `GET` is still appropriate since the main content of the page doesn't change."
+
+"`POST` **requests involve changing values that are stored on the server.** Most HTML forms that submit their values to the server will use `POST`. Search forms are a notable exception to this rule: they often use `GET` since they are not changing any data on the server, only viewing it"
+
+
+
+**<u>Summary</u>**
+
+* The *Domain Name System* (DNS) is a distributed database which *maps a domain name* such as `google.com` *to an IP Address such as `216.58.213.14`.
+* A *URI* is an *identifier* for a *particular resource* within an information space.
+* A URL is a subset of URI, but the two terms are often used interchangeably.
+* URL components include the scheme, host (or hostname), port, path, and query string.
+* Query strings are used to pass additional data to the server during an HTTP request. They take the form of name/value pairs separated by an `=` sign. Multiple name/name value pairs are separated with an `&` sign. The start of the query string is indicated by a `?`.
+* URL encoding is a technique whereby certain characters in a URL are replaced with an ASCII code. [the `+` sign can also represent a space]
+* URL encoding is used if a character has no corresponding character in the ASCII set, is unsafe because it is used for encoding other characters, or is reserved for special use within the url.
+* A single HTTP message exchange consists of a Request and a Response. The exchange generally takes place between a Client and a Server. The client sends a request to the server, and the server sends back a response
+* An HTTP request consists of a request line, headers and an optional body
+* An HTTP response consists of a status line, optional headers, and an optional body
+* Status codes are part of the status line in a response. They indicate the status of the request. There are various categories of status code.
+* HTTP is a stateless protocol. This means that each Request/Response cycle is independent of that came before or those that come after
+* Statefulness can be simulated through techniques which use session IDs, cookies, and AJAX
+* HTTP is inherently unsecure. Security can be increased by using HTTPS, enforcing Same-origin policy, and using techniques to prevent Session Hijacking and Cross-site Scripting.
+
+
+
+Wrong answers on quiz:
+
+1. "How is DNS used in conjunction with IP?"
+
+   Wrong: "DNS is used to translate IP addresses from bits into human readable form" 
+
+   Solution: "DNS isn't used to translate IPs from bits, though it is related to the internet protocol (IP). We use DNS to first search for a domain and then its associated IP address, not the other way around."
+
+   What I thought they were saying is that without DNS, IP addresses would not have a human-readable form. I think the clue that this was incorrect was "**from** bits **into ** human readable form", suggesting a DNS lookup procedure (whereas actual DNS lookup goes the other way).
+
+12. "It's possible to send simple, limited data via URL paramters; this is one way in which we can simulate a stateful application."
+
+
+
+## Questions ##
+
+**<u>Definition of an Application Server</u>**
+
+'In essence, **an application server is the software program that runs your server-side code**'
+
+'webrick, puma and unicorn are some popular application servers used with Ruby applications'
+
+So the web server handles all incoming requests from clients. If a request requires processing rather than static assets, the web server forwards the request to the application server. The application server passes the request into the application and then processes the application's output into a response, which is then forwarded to the web server, which sends the reponse to the client.
+
+The application server 'acts as middleware for communication between the web server and your application.'
+
+**<u>Spoiler Quiz Question 1</u>**
+
+It's probably good to be clear on exactly what Launch School means when it asks questions about the statelessness of HTTP. The answer to this question contrasts HTTP with Telnet. Telnet requires that state on the user session be stored between requests and responses. HTTP does not. However, in practice, modern web applications use various techniques to store data on the user session to provide a stateful experience; they simply do this without it being a core part of the protocol (in the sense that a Cookie is state, but HTTP simply ferries the information between server and client, or vice versa, and then forgets it).
+
+**<u>Harvard CS50 Lecture on the Internet and Web</u>**
+
+private IP addresses
+
+Network Address Translation (NAT)
+
+so generally, an ISP gives your home a single IP address and then the devices on your home network get private IP addresses, which are only meaningful within the home network. When traffic comes from outside the local gateway, NAT etc on your home router is used to map from the general IP address to the private IP address of your specific device.
+
+NB: DHCP is the universal modern way to assign IP addresses. It is not limited to home/ISP private addresses or NAT and the limitations of IPv4. There is a DHCPv6 for IPv6.
+
+Dynamic Host Configuration Protocol (DHCP)
+
+So when a network-connected computer system is first switched on (assuming it has support for DHCP), it announces or broadcasts a message that says it exists, what should its IP address be?
+
+The DHCP server on your network (at your ISP for instance?) has the job of listening for these hellos, and then responds using the same protocol giving your system its IP address.
+
+from Microsoft Learn: 'Dynamic Host Configuration Protocol is a client/server protocol that automatically provides an Internet Protocol (IP) host with its IP address and other related configuration information such as the subnet mask and default gateway' 
+
+'... DHCP allows hosts to obtain required TCP/IP configuration information from a DHCP server'
+
+' ... Every device on a TCP/IP-based network must have a unique unicast IP address to access the network and its resources. Without DHCP, IP addresses for new computers or computers that are moved from one subnet to another must be configured manually; IP addresses for computers that are removed from the network must be manually reclaimed.'
+
+'... With DHCP, this entire process is automated and managed centrally. The DHCP server maintains a pool of IP addresses and leases an address to any DHCP-enabled client when it starts up on the network. Because the IP addresses are Dynamic (leased) rather than static (permanently assigned), addresses no longer in use are automatically returned to the pool for reallocation.'
+
+'... The network administrator establishes DHCP servers that maintain TCP/IP configuration information and provide address configuration to DHCP-enabled clients in the form of a lease offer. '
+
+The DHCP server stores the configuration information in a database that includes
+
+* Valid TCP/IP configuration parameters for all clients on the network
+* Valid IP addresses, maintained in a pool for assignment to clients, as well as excluded addresses
+* Reserved IP addresses associated with particular DHCP clients. This allows consistent assignment of a single IP address to a single DHCP client.
+* The lease duration, or the length of time for which the IP address can be used before a lease renewal is required.
+
+A DHCP-enabled client, upon accepting a lease offer, receives:
+
+* A valid IP address for the subnet to which it is connecting
+* Requested DHCP options, which are additional parameters that a DHCP server is configured to assign to clients. Some examples of DHCP options are Router (Default Gateway), DNS Servers, and DNS Domain Name.
+
+DHCP was standardized base on Bootstrap Protocol (BOOTP).
+
+Benefits of DHCP
+
+* Reliable IP address configuration. DHCP minimizes configuration errors caused by manual IP address configuration, such as typographical errors, or address conflicts caused by the assignment of an IP address to more than one computer at the same time.
+* Reduced network administration
+  * Centralized and automated TCP/IP configuration
+  * The ability to define TCP/IP configurations from a central location
+  * The ability to assign a full range of additional TCP/IP configuration values by means of DHCP options.
+  * The efficient handling of IP address changes for clients that must be updated frequently, such as those for portable devices that move to different locations on a wireless network
+  * The forwarding of initial DHCP messages by using a DHCP relay agent, which eliminates the need for a DHCP server on every subnet.
+
+back to video
+
+ports
+
+22 SSH
+
+53 DNS
+
+80 HTTP
+
+443 HTTPS
+
+587 SMTP
+
