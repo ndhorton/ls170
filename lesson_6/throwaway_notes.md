@@ -260,11 +260,129 @@ There are many browser optimizations and they vary from browser to browser, but 
 
 **<u>SSE</u>**
 
+* Server-Sent Events (SSE) is a networking API that enables efficient server-to-client streaming of text-based event data
+* SSE allows the server to send real-time notifications or updates created by the server to the client without the client needing to send a request for the updates
+* SSE achieves this through the delivery of messages over a single, long-lived TCP connection
+* Once the client and server complete the TCP handshake and perform the first request-response cycle, instead of closing the connection the client actually keeps it open to the server in order to receive any future updates
+* Messages are then pushed from the server to the client the moment they become available on the server, resulting in low latency and minimum message overhead
+* The SSE API only works with a client-server model of communication
+* SSE does not allow for request streaming from client to server
+* Streaming support is specifically designed for UTF-8 text, so binary streaming is inefficient
+* After the initial handshake, the client can no longer send any data to the server using that particular connection; instead the server uses it to provide real-time updates to the client
+
+**<u>WebSocket</u>**
+
+* The WebSocket API is a simple and minimal API that enables us to layer and deliver arbitrary application protocols between the client and server such that either side can send data to the other at any time (duplex connection)
+* Allows client and server to establish a persistent TCP connection that allows either side to independently send message to each other. The client can send information to the server, and the server can send information to the client, and neither needs a request from the other side
+* This form of communication is known as **bidirectional communication**
+* Communication over WebSocket consists of messages and application code that does not need to worry about buffering, parsing, and reconstructing received data. It provides low latency delivery of text and binary application data in both directions and overall is a perfect fit for delivering custom application protocols in the browser
+* However, the simplicity and minimal nature of the WebSocket API comes with a trade-off, since the application must account for missing state management, compression, caching, and other services otherwise provided by the browser. Additionally, WebSocket is not meant to be a replacement for HTTP, XHR, or SSE, and for best performance it is critical that developers consider their applications' use cases and leverage the API that best fits their needs
+
+## 6:6 Peer to Peer Networking ##
+
+* Within the client-server model the participants in a data message exchange have clearly defined roles within that exchange; the client makes a request, and the server issues a response to that request. You can have many clients connecting to the server, but the dynamic between client and server remains the same.
+* The client-server model isn't the only form of network communication, however. Another model is the peer-to-peer (P2P) model
+* In a P2P network, there isn't the same clear separation of roles as with client-server. Instead, each computer in the network acts as a 'node'. Within this network architecture, each node is capable of performing the functions that both a client and a server would in the client-server model
+* It's important to note that when we talk about a P2P network architecture, what this refers to is the way in which the various devices interact with each other. The underlying infrastructure is the same as for a client-server architecture, including many of the same protocols; for example, P2P networks can and do use TCP or UDP at the Transport layer
+
+**<u>Use Cases</u>**
+
+* A chief advantage of P2P is that there is no need to set up and maintain a server to provide the system with functionality, you just need two or more nodes
+* The lack of dependence on a central server can also make the network more resilient; by having several nodes perform the same functions, if one goes down the network can still operate. These attributes contributed to the popularity of P2P architectures for file-sharing applications
+* Another advantage of P2P is that there is no need for each communication to be routed through a central point. In some situations this can reduce latency by giving shorter paths over the network. This makes P2P useful for applications which depend on Real Time Communication, for example voice or video calling
+
+**<u>Complexities of P2P</u>**
+
+* A difficulty with P2P is **discovery**. Within the client-server model, we can make the assumption that the server *should* be available at a given IP address that we can discover via DNS lookup from a fixed hostname. With P2P networks things are not so simple; specific nodes may not always have the same IP address, and might be online or offline at unpredictable times. The way in which the discover issue is dealt with depends on the type of P2P network that is being established.
+* One approach to discovery is **flooding**
+* Another more structured approach to discovery is a using a **Distributed Hash Table (DHT)**
+* Another approach is to use a hybrid model, where a central server enables nodes to discover each other. The nodes have a client-server relationship with the central server, but a peer-to-peer relationship with each other once connected
+* There are other complexities for P2P networks to contend with, including **connection negotiation and establishment**, **security**, **performance**, and **scaling**.
+
+**<u>WebRTC</u>** 
+
+* File-sharing drove much of the early development of P2P network applications and technology
+* As network performance has improved, the use of the internet for real-time communications such as voice and video calling has increased massively. Skype launched in beta in 2003, and added video calling in 2005
+* These kinds of voice and video calling applications are a great use case for P2P networks
+* Until recently, however, establishing or joining a P2P network for real-time communication has generally required the installation of some third-party software or plug-in, and wasn't something you could use a browser for
+* WebRTC now provides real-time communication functionality within the browser, effectively allowing the browser to act as a node within a P2P communication network
+* WebRTC is collection of standards, protocols, and APIs available in most modern web browsers. It abstracts away the complexities of establishing P2P communication between nodes. WebRTC uses UDP at the Transport layer. Since UDP is connectionless and inherently unreliable, WebRTC combines various different protocols for session establishment and maintenance (STUN, TURN, ICE), for security (DTLS), and for congestion and flow control and a certain level of reliability (SRTP, SCTP)
+
+Come back to read about the Capstone projects Conclave, Layr, Xorro P2P
+
+## 6:7 Blog Post ##
+
+Come back to blog posts. When taking notes, think about how you might structure and write your own.
+
+* Maybe use the summaries for each lesson as a starting point for structure
+
+* What software to use for diagrams?
 
 
 
+**<u>Juliette Sinibardy</u>**
 
+Does the, What happens when you type a URL into your browser?
 
+* Begins with URL Parsing - components of URL
+* DNS lookup on host - mentions the possibility that the DNS hostname is already in cache, if not describes DNS as a distributed database, no details other than browser caching
+* Describes the browser taking the server's IP address and port number to create a TCP/IP Socket - this may be harder to work in as neither this blog post nor my current understanding really connect the existence of the socket object with the data encapsulation
+* Then describes the HTTP request undergoing several layers of encapsulation
+* Describes basics of Transport layer PDU (source/destination ports) and also the role of the Transport layer
+* Describes TCP segment being passed down to the Network layer, encapsulation as packet
+* Describes packet encapsulation as Ethernet frame
+* Very brief description of the Physical layer
+* Briefly describes the internet as a network of networks connected by routers that move the packet across the internet
+* Then does the opposite order of layers for receiving a packet
+* Moves on to HTTP
+* Describes TCP three-way handshake
+* Describes TLS handshake
+* Describes HTTP request/response cycle
+
+OK, explanations were fine if brief, structure was a bit all over the place. Probably good not to put too much time into this except as a way to study for the exam.
+
+**<u>Liz Fedak</u>**
+
+* three-way TCP handshake (SYN, SYN/ACK, ACK)
+* TCP multiplexes data over IP connection (as well as the four necessary things for reliable comms)
+
+**<u>Karis</u>**
+
+TCP three-way handshake, ports, process to process, TCP/IP socket, sockets generally, socket objects, elements of reliability
+
+IP - routing and routing tables, routing protocols, Autonomous Systems, DNS, DNS servers, DNS cache, subnetting, routers, IP addressing hierarchical, IPv4 and NAT
+
+**<u>Vahid</u>**
+
+Article 1:
+
+* Makes a good point that the MAC address pertains to a NIC (Network Interface Card) and not to an overall device. Routers obviously have several interfaces since they need to exist on several separate networks
+* `802.11` - the protocol standard(s) for edge wireless communication (i.e. 'wifi'). Letter designations after the `802.11` such as `c`, `g`, `h`, `n`, `ac`, and `ax` distinguish the wifi protocol version (relatspeeds and frequencies of operation)
+* Top-Level Domains, or TLDs, (`com`, `net`, `org`, `uk`, `fr`, etc) , Second-Level Domains (`google`, `launchschool`, etc), Third-Level Domains, etc
+* Elements of latency:
+  * propagation delay -- the time taken for data to travel from one point to another that is the result of the natural limitations of the medium, so for wireless it would be `the distance / the speed of light`
+  * transmission delay -- don't think his definition is right. Transmission delay is simply the time taken to push the bits of a packet onto the wire (medium) and primarily depends on the size of the packet
+  * processing delay -- the time taken to process a packet (including de-encapsulation, encapsulation, routing decisions, etc)
+  * queuing delay -- the time a packet spends waiting in line, for instance being held in a buffer, while waiting to be processed or transmitted
+
+Article 3:
+
+* The concept of encapsulating each layer's PDU
+* Time To Live (TTL) packet header field - a number representing a hop limit. At each hop, the router processing the packet decrements this number. If it were to reach zero, the packet would be dropped. This finite lifetime prevents various problems, such as packets being caught up in infinite routing loops causing network congestion by circulating indefinitely.
+* TCP client and server. The client initiates the connection, usually has randomly generated port number. The server listens on a usually known port number, e.g. `80` for HTTP without TLS.
+* The TCP three-way handshake
+  * SYN - 'synchronize' - client sends this message to the server to initiate connection. The SYN segment has no payload, and the `SYN` flag in the segment header is set to a truthy value.
+  * SYN/ACK - 'synchronize/acknowledgement' - the server sends this to acknowledge the client's initial request. The `SYN` and `ACK` fields of this segment are set to true and the segment contains no body.
+  * ACK - 'acknowledgement' - the client sends this segment as a response to receiving the server's SYN/ACK
+* 
+
+## 6:8 Summary ##
+
+* HTTP has changed considerably over the years, and is continuing to change
+* Many of the changes to HTTP are focused on improving performance in response to the ever increasing demands of modern networked applications.
+* Latency has a big impact on the performance of networked applications. As developers and software engineers we need to be aware of this impact, and try to mitigate against it through the use of various optimizations
+* In building networked applications, there are tools and techniques available to us that work around or go beyond the limitations of basic HTTP request-response functionality
+* For certain use cases a peer-to-peer architecture may be more appropriate than a client-server architecture
 
 
 
