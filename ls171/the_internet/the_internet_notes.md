@@ -83,7 +83,7 @@ Discusses OSI and TCP/IP models, data encapsulation, PDUs, payload and metadata 
 
 1:7 **<u>The Physical Network</u>**
 
-"If we drill down through these layers of abstraction, underlying everything at the most basic level is a 'physical' network made of tangivle pieces such as networked devices, cables, and wires. Even the radio waves used in wireless networks, though we can't touch or see them, exist in the physical realm and are bound by physical laws and rules"
+"If we drill down through these layers of abstraction, underlying everything at the most basic level is a 'physical' network made of tangible pieces such as networked devices, cables, and wires. Even the radio waves used in wireless networks, though we can't touch or see them, exist in the physical realm and are bound by physical laws and rules"
 
 "These laws and rules determine how data actually gets transported from one place to another in a physical sense. What happens at this level involves real-world limitations and boundaries, such as how fast an electrical signaal or light can travel, or the distance a radio wave can reach. These limitations determine the physical characteristics of a network, and these characteristics have an impact on how protocols function further up at the conceptual level. If we want to work with these protocols, it is therefore important to have at least a basic understanding of how a network works at this level."
 
@@ -275,3 +275,22 @@ However, LSBot says "it's not always as clear-cut as the quiz suggests:
 •  The fourth set usually identifies a specific device on that host [???]  However, this division can vary depending on the specific network configuration and subnetting."
 
 * There is also a new standard for IP addresses  which is in the process of being adopted, IPv6. This representation of  an IP address is broken into 8 sets of hexadecimal characters, each  containing 16 bits of information. The first 4 sets are used to locate a specific network on the internet.  The last 4 sets are typically used to identify a particular interface or device within that network.
+
+<u>2:2 **Communication Between Processes**</u>
+
+**<u>Ports</u>**
+
+* A port is an identifier for a specific process running on a host
+* Each port is an integer in the range 0-65535
+  * 0-1023 -- well known ports. These are assigned to processes that provide commonly used network services (server-side, normally). For example HTTP is port 80, FTP is port 20 and 21, SMTP is port 25, and so on.
+  * 1024-49151 -- registered ports. They are assigned as requested by private entities. For example, companies like Microsoft, IBM, and Cisco have ports assigned that they use to provide specific services. On some operating systems, ports in this range are also used for allocation as *ephemeral ports* on the client side.
+  * 49152-65535 -- dynamic ports (sometimes known as private prts). Ports in this range cannot be registered for a specific use. They can be used for customized services or for allocation as ephemeral ports. (This is the IANA-recommended range respected by Windows systems. On Unix-like systems, the range for ephemeral ports is likely to be 32768-60999 or 32768-65535 depending on the exact OS, and it also varies among Linux distributions. On Unix systems, the range for ephemeral ports used to be 1024-5000 but it has shifted and expanded to accommodate more simultaneous connections)
+* Services running on servers will likely have a port in the well-known range assigned to them
+  * We say that a server *listens* on a port.
+* A service running on a client machine, for example in a browser running on your laptop, won't use one of these well-known ports, but instead have an *ephemeral* or temporary port assigned to it by the operating system
+* Ports enable the multiplexing and demultiplexing of multiple process-to-process communication channels over the single host-to-host connection provided by IP addressing. The source and destination port numbers in the header of a TCP segment or UDP datagram identify specific processes running on a host. The Transport layer PDU including this header information is encapsulated as the data payload of an IP packet, sent across the single channel of the Network layer from host to host, and then used to separate a 'channel' of communication from other channels at the other end by delivering it to the correct process identified by the destination port
+* The combination of IP addresses and port numbers enables end-to-end communication between two networked processes (usually running on different machines)
+* The combination of an IP address and a port number defines a *communication end-point*, generally referred to as a *socket*
+
+So the system of TCP and UDP ports offers multiplexing and demultiplexing; ports allows us to send multiple channels of data from distinct networked processes over a single channel (IP) of communication between network hosts, and have those channels be separated out again at the other end.
+
