@@ -130,6 +130,70 @@ So the system of TCP and UDP ports offers multiplexing and demultiplexing; ports
 
 
 
+2:5 **<u>User Datagram Protocol (UDP)</u>**
+
+* Like TCP, UDP multiplexes and demultiplexes multiple data channels across a single network channel using a system of port numbers to identify source and destination processes
+* Like TCP, UDP encapsulates data from the layer above as the data payload of a PDU (Datagram) and adds header metadata
+* A Datagram has the following headers
+  * Source Port
+  * Destination Port
+  * Length -- of the datagram in bits including any encapsulated data
+  * Checksum -- optional if using IPv4 (which has its own), used for error detection
+* Unlike TCP, UDP provides no guarantee of message delivery
+* Unlike TCP, UDP provides no guarantee of message delivery order
+* Unlike TCP, UDP provides no built-in congestion avoidance or flow-control mechanisms
+* Unlike TCP, UDP provides no connection state tracking, since it is a connectionless protocol
+  * TCP is connection-oriented, UDP is connectionless
+
+**<u>The Case for UDP</u>**
+
+* What UDP offers is simplicity, offering two great advantages: speed and flexibility
+* UDP is faster than TCP
+  * UDP is a connectionless protocol. Applications using UDP can just start sending data without having to wait for a connection to be established with the application process of the receiver
+  * No acknowledgements and retransmissions means that the data delivery is faster
+    * once a datagram is sent it doesn't have to be sent again
+    * latency is reduced since data simply flows from sender to receiver
+  * The lack of in-order delivery eliminates the Head-of-line blocking issue at the Transport layer
+* UDP is more flexible than TCP
+  * UDP provides a simpler base than TCP, on top of which developers can build only those reliability features they actually need, or they can implement them more efficiently for a particular use case
+  * Video and voice calling, and multiplayer games, are examples of applications that commonly use UDP
+    * Video and voice calling software tends to accept the occasional loss of pieces of data since perfect fidelity is less important than keeping latency at a minimum over long distances
+    * Video games tend to consider occasional glitches preferable to the effect on gameplay caused by latency (lag)
+* There are various best practices that must be adhered to with UDP that are simply not a concern with TCP
+  * For example, it is generally necessary for a UDP-based application to implement some form of congestion avoidance in order not to overwhelm the network
+
+**<u>2 Summary</u>**
+
+* Multiplexing and demultiplexing provide for the transmission of multiple signals over a single channel
+* Multiplexing is enabled through the use of network ports
+* Network sockets can be thought of as a combination of IP address and port number
+* At the implementation level, network sockets can also be socket objects
+* The underlying network is inherently unreliable. If we want reliable data transport we need to implement a system of rules to enable it
+* TCP is a connection-oriented protocol. It establishes a connection using the Three-way handshake
+* TCP provides reliability through message acknowledgement and retransmission, and in-order delivery
+* TCP also provides Flow Control and Congestion Avoidance
+* The main downsides of TCP are the latency overhead of establishing a connection, and the potential Head-of-line bocking as a result of in-order delivery
+* UDP is a very simple protocol compared to TCP. It provides multiplexing, but no reliability, no in-order delivery, and no congestion or flow control
+* UDP is connectionless, and so doesn't need to establish a connection before it starts sending data
+* Although it is unreliable, the advantage of UDP is speed and flexibility
+
+
+
+Quiz 2:
+
+* Question  3
+  * A socket is the combination of IP address and port number
+  * A socket can be a socket object
+  * A socket is a communication end-point
+  * Sockets are used to create connections between applications
+  * The term socket can be somewhat overloaded, and mean different things depending on the context. At a conceptual level it can mean the combination of IP address and port number that provides a communication end-point -- this is sometimes called a network socket. At an implementation level it can refer to a socket object that is used to create connection between applications
+* Question 7
+  * Congestion avoidance is a process by which TCP uses data loss (based on the volume of retransmissions required) as a feedback mechanism to determine how congested the network is, and adjusts the amount of data being sent accordingly
+* Question 8
+  * Flow Control is a mechanism to prevent the sender overwhelming the receiver with more data than it can process. Each participant in a connection lets the other participant know how much data it is willing to accept using a field in the TCP header
+
+
+
 ## Have a broad understanding of the three-way handshake and its purpose
 
 2:4 **<u>Transmission Control Protocol (TCP)</u>**
