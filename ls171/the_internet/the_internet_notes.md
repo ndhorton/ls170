@@ -75,7 +75,160 @@ Discusses OSI and TCP/IP models, data encapsulation, PDUs, payload and metadata 
 * *Encapsulation* is a means by which protocols at different network layers can work together.
 * Encapsulation is implemented through the use of *Protocol Data Units* (PDUs). The PDU of a protocol at one layer becomes the data payload of the PDU at a lower layer
 
- 
+ 3:1 **<u>What to Focus On</u>**
+
+* Develop a clear understanding of the role of HTTP -- try and build a picture of the functioning of the web as a combination of multiple different technologies, a combination within which HTTP has a specific role
+  * HTTP, URLs, HTML -- the three big Web technologies that defined the Web at its inception
+  * DNS needed (like a lot of internet services)
+  * TLS (/SSL) -- introduced to add security as the Web expanded and commercialized
+  * JavaScript and CSS -- added functionality and expanded style options
+  * AJAX, Cookies, etc
+* Break things down into individual components -- ensure clarity within your mental models by breaking concepts like HTTP and URLs into specific components, and understanding the purpose of each of those components
+  * URL -- structure of URL, query parameters, host etc
+  * HTTP -- less sure what this means
+    * HTTP is a client-server protocol
+    * HTTP is a request-response protocol
+    * HTTP is a connectionless protocol
+    * HTTP is a stateless protocol
+
+
+
+3:2 **<u>The Application Layer</u>**
+
+* The Application layer is not the application itself, but rather a set of protocols which provide communication services to applications
+* The Application layer is the layer with which networked applications typically interact the most
+  * Networked applications also interact with the Transport layer, though not typically with layers below Transport
+* Lower level protocols are mainly concerned with the establishment and flow of communications, the rules around how messages get from one point to another
+* Application layer protocols are concerned with the structure of a message and what data it should contain
+  * Application layer protocols rely on the protocols at the layers below them to ensure that a message gets to where it is supposed to, and do not need to concern themselves with it
+* We can think of Application layer protocols as the rules for how applications talk to each other at a syntactical level
+  * Different types of applications have different requirements with regards to how they communicate at a syntactical level, and so as a result there are many different protocols which exist at the application layer
+  * E.g., the rules for how an email client communicates with an email server will be different from the rules for how a web browser communicates with a web server, because emails and web pages are fundamentally different things serving different purposes
+
+
+
+3:3 **<u>HTTP and the Web</u>**
+
+* HTTP is the primary protocol used for communication on the Web
+* The *Internet* is essentially a network of networks. It can be thought of as the infrastructure that enables inter-network communication, both in terms of the physical network and the lower-level protocols that control its use
+* The World Wide Web is a **service** that can be accessed via the Internet
+  * The Web is a vast information system comprised of **resources** which are navigable by means of a **URL** (Universal Resource Locator)
+* HTTP is closely tied, both historically and functionally, to the web as we know it
+  *  HTTP is the primary means by which applications interact with the resources which make up the web
+
+**<u>A Brief History of the Web</u>**
+
+* The Web was conceived at CERN in 1989 by Tim Berners-Lee, and later formalized as a proposal in 1990 by Berners-Lee and his colleague, Robert Cailliau
+* The problem Berners-Lee identified at CERN was that CERN had information spread over many computer systems in many countries, and that accessing this information required different methods from system to system
+* Berners-Lee's idea was to create a uniform system for accessing information resources over the internet, and these resources could be structured in a uniform way via Hypertext. The resources could all be connected to each other via hyperlinks in order to create a vast, world-wide 'web' of information.
+* This system required uniformity
+  * Uniformity in how the resources were structured so that they could all be correctly rendered for viewing (HTML)
+  * Uniformity in how the resources were addressed so that they could simply and easily be located (URLs/URIs)
+  * Uniformity in the way a request for a particular resource was made and in the way in which that request was responded to (HTTP)
+* So the earliest incarnation of the Web was essentially a combination of three technologies: HTML, URIs, and HTTP
+* Hypertext Markup Language (HTML) was the means by which the resources in this system should be uniformly structured
+* A Uniform Resource Identifier (URI) is a string of characters which identifies a particular resource. It is part of a system by which resources should be uniformly **addressed** on the Web
+* Hypertext Transfer Protocol (HTTP) is the set of rules which provide uniformity to the way resources on the web are transferred between applications
+
+
+
+3:4 <u>**HTTP Book: Background**</u>
+
+**<u>A Brief Overview & History</u>**
+
+* When you type a URL into the address bar of your web browser, you expect to see the website displayed in your browser -- starting point of typical 'how does the internet work'/'what happens when you type a URL into the address bar of your browser' interview questions
+  * When you click on a link, or submit a form, your browser may display the next page, or display errors in your form so you can correct them and submit again
+* The browser is the interface or window, through which you interact with the world wide web
+* A collection of files -- CSS, HTML, JavaScript, videos, images, etc -- makes displaying webpage possible
+* All these files were sent from a **server** to the browser, the **client**, by an application protocol called HTTP (yes, this is why URLs in your browser, the **client**, via an application protocol called HTTP)
+* HTTP, or Hypertext Transfer Protocol is a system of rules (a protocol) that serves as a link between applications and the transfer of hypertext documents
+  * HTTP is an agreement, or message format, of how machines communicate with each other
+  * HTTP follows a simple model where a client makes a **request** to a server and waits for a **response**. Hence, it's referred to as a **request-response protocol**
+  * We can think of the request and the response as text messages, or strings, which follow a standard format that the other machine can understand (though it is important to understand that the body of responses can be binary since HTTP/1.0 at the latest, and since HTTP/2 the entire protocol is based on binary encoding even for text inputs like headers and html documents)
+* The HTTP protocol has been through several changes from its inception
+  * HTTP/0.9 (1991) -- the first documented version
+  * HTTP/1.0 (1992) -- introduced the ability to transmit different types of documents in addition to HTML, such as CSS, videos, scripts and images
+  * HTTP/1.1 (1995) -- introduced the ability to reuse established connections for subsequent requests, among a host of other features
+  * HTTP/1.1 update (1999) -- defined the protocol that still dominates today
+  * HTTP/2
+  * HTTP/3
+
+**<u>How the Internet Works</u>**
+
+* The Internet consists of millions of interconnected networks that allow all sorts of computers and devices to communicate with each other
+* All devices on this network of networks are provided an IP Address (Internet Protocol address)
+* Port numbers add more detail about how to communicate
+* We represent an IP address `192.168.0.1` and port number `1234` as `192.168.0.1:1234`, the IP address followed by a `:` followed by the port number
+* An IP address acts as the identifier for a device or server, which can contain thousands of ports, each used for a different communication purpose
+
+**<u>DNS</u>**
+
+* DNS is a **distributed database** that translates domain names into IP addresses
+
+* The responsibility of the Domain Name System is to map a domain name like `www.google.com` to an IP address like `197.251.230.45`
+
+  * DNS servers provide this functionality to any internet service that needs it
+  * The primary reason for the existence of DNS is to give a human-readable and memorable form to hosts on the internet, since IP numbers are difficult for people to meaningfully remember
+
+  * When it comes to the Web, and browsers, it allows us to type `www.google.com` as part of a URL rather than `197.251.230.45`
+  * We could if we liked type the IP address into the browser's bar rather than the domain name
+
+* DNS databases are stored on computers called **DNS servers**
+
+  * There is a very large world-wide network of hierarchically organized DNS servers
+  * No single DNS server contains the complete database (hence, distributed database)
+  * If a DNS server does not contain a requested domain name, the DNS server routes the request to another DNS server up the hierarchy, and eventually the address will be found in the DNS database on a particular DNS server, and the corresponding IP address will be used to receive the request
+  * If a DNS record is cached as a temporary record on any server we traverse in the search, this speeds up the process
+  * Otherwise the server hierarchy is structured:
+    * Root servers -- highest level
+    * Top-Level Domain servers -- servers covering the top-level domains, such as `com` and `org`, keeps records of authoritative servers under that domain
+    * Authoritative Domain servers -- servers that actually house the original DNS record for a given second-level domain and its subdomains
+
+Your typical interaction with the Internet starts with a web browser when you...
+
+I don't think the DNS lookup is actually in the right place in the list that follows this. I think the DNS lookup is performed before the HTTP request is created so that a TCP/IP socket can be created for the request which is then constructed and sent through the socket. Every other source seems to insist that DNS search comes before the request is created.
+
+**<u>Clients and Servers</u>**
+
+* Web browsers are HTTP clients, responsible for issuing HTTP requests and processing the HTTP response in a user-freindly manner onto your screen
+* Web browsers are not the only clients: many tools and applications also issue HTTP requests
+* 'Server' as a term can refer both to computers that are configured with software that can respond to requests, and the software itself
+
+**<u>Resources</u>**
+
+* "Resource" is a generic term for things that you interact with on the internet via an URL
+* Resources can be images, videos, web pages, and other files
+* Resources are not limited to files; resources can also be applications
+
+**<u>Statelessness</u>**
+
+* A protocol is said to be **stateless** when it's designed in such a way that each request/reponse pair is completely independent of the previous one
+* HTTP is a stateless protocol
+* HTTP's stateless means the server does not need to hang on to information, or state, between requests
+* As a consequence of HTTP's statelessness, when a request breaks en route to the server, no part of the system has to do any cleanup
+* HTTP's statelessness makes the web resilient
+
+  * When a request breaks or fails, the server does not need to perform any cleanup or maintain information about the broken connection; failures are isolated and don't cascade through the system
+  * Servers don't need to maintain complex state tracking between requests, which simplifies server design and reduces memory requirements
+  * If a server fails, requests can simply be redirected to another server, promoting fault tolerance
+* HTTP's statelessness facilitates the distributed nature of the web
+
+  * Requests can be routed to any server in a cluster without needing to synchronize session state between them
+* HTTP's statelessness makes the web harder to control
+
+  * Third-party enforcement of content restrictions or rate limiting are harder when there's no inherent relationship between requests
+* Since HTTP is stateless, web developers have to work hard to simulate a stateful experience in web applications
+  * For instance, on a social media website, developers need to 'simulate' statefulness so that we remain 'logged in' somehow
+  * Otherwise, after validating our credentials, we would be immediately logged out again every time we clicked on a link on the page, since HTTP itself treats each request/response as independent of every other
+  * There are various techniques for achieving this 'simulation' of statefulness, or building a stateful experience on top of a stateless communication protocol
+
+
+
+3:4 **<u>HTTP Book: What is a URL?</u>**
+
+* A URL is a string of characters that uniquely identifies a Web resource
+* If we have the URL of a resource, we can visit the resource by typing the URL into a browser address bar
+* We could see a URL as being to Web resources what a home address or telephone number is to an individual person
 
 
 
@@ -294,3 +447,47 @@ However, LSBot says "it's not always as clear-cut as the quiz suggests:
 
 So the system of TCP and UDP ports offers multiplexing and demultiplexing; ports allows us to send multiple channels of data from distinct networked processes over a single channel (IP) of communication between network hosts, and have those channels be separated out again at the other end.
 
+
+
+## Have an understanding of how DNS works
+
+3:4 <u>**HTTP Book: Background**</u>
+
+**<u>DNS</u>**
+
+* DNS is a **distributed database** that translates domain names into IP addresses
+
+* The responsibility of the Domain Name System is to map a domain name like `www.google.com` to an IP address like `197.251.230.45`
+
+  * DNS servers provide this functionality to any internet service that needs it
+  * The primary reason for the existence of DNS is to give a human-readable and memorable form to hosts on the internet, since IP numbers are difficult for people to meaningfully remember
+
+  * When it comes to the Web, and browsers, it allows us to type `www.google.com` as part of a URL rather than `197.251.230.45`
+  * We could if we liked type the IP address into the browser's bar rather than the domain name
+
+* DNS databases are stored on computers called **DNS servers**
+
+  * There is a very large world-wide network of hierarchically organized DNS servers
+  * No single DNS server contains the complete database (hence, distributed database)
+  * If a DNS server does not contain a requested domain name, the DNS server routes the request to another DNS server up the hierarchy, and eventually the address will be found in the DNS database on a particular DNS server, and the corresponding IP address will be used to receive the request
+  * If a DNS record is cached as a temporary record on any server we traverse in the search, this speeds up the process
+  * Otherwise the server hierarchy is structured:
+    * Root servers -- highest level
+    * Top-Level Domain servers -- servers covering the top-level domains, such as `com` and `org`, keeps records of authoritative servers under that domain
+    * Authoritative Domain servers -- servers that actually house the original DNS record for a given second-level domain and its subdomains
+
+Your typical interaction with the Internet starts with a web browser when you...
+
+I don't think the DNS lookup is actually in the right place in the list that follows this. I think the DNS lookup is performed before the HTTP request is created so that a TCP/IP socket can be created for the request which is then constructed and sent through the socket. Every other source seems to insist that DNS search comes before the request is created.
+
+
+
+## Understand the client-server model of web interactions, and the role of HTTP as a protocol within that model
+
+3:4 <u>**HTTP Book: Background**</u>
+
+**<u>Clients and Servers</u>**
+
+* Web browsers are HTTP clients, responsible for issuing HTTP requests and processing the HTTP response in a user-freindly manner onto your screen
+* Web browsers are not the only clients: many tools and applications also issue HTTP requests
+* 'Server' as a term can refer both to computers that are configured with software that can respond to requests, and the software itself
