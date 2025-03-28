@@ -84,6 +84,16 @@ Aside: a `301` status code is a permanent redirect, and a `303` status code is l
 
 
 
+3:9 **<u>Summary</u>**
+
+* An HTTP Request consists of a request line (or start line), headers and an optional body
+* An HTTP Response consists of a status line, optional headers and an optional body
+* Status codes are part of the status line in a response. They indicate the status of the request. There are various categories of status code.
+
+
+
+
+
 ## Be able to describe the HTTP request/response cycle
 
 3:4 **<u>HTTP Book: Processing Responses</u>**
@@ -91,6 +101,46 @@ Aside: a `301` status code is a permanent redirect, and a `303` status code is l
 * HTTP is nothing more than an agreement in the form of formatted text that dictates how a client and server communicate
 
 
+
+3:8 **<u>The Request/Response Cycle</u>**
+
+Assume the client is a web browser and the server is a Ruby application at `todos.com`
+
+1. Client creates and sends request
+   * Let's assume the request happens as a result of a user action, either entering a URL in the address bar or clicking a link
+   * The browser creates a request and sends it across the network to the server
+     * Method `GET`
+     * Path `/tasks`
+     * Parameters (included in path) `?due=today`
+     * In HTTP 1.1 there needs to be a Host header (e.g `todos.com`, whereas in HTTP 1.0 the host name was generally not included in the HTTP request itself
+2. Server receives request and performs some kind of work
+   * Common workflow might be
+     * Verify user session
+     * Load tasks from database
+     * Render HTML
+3. Server creates and sends the response
+   * Status `200 OK`
+   * Headers `Content-Type: text/html`
+   * Body `<html><body> ...`
+4. Browser receives response
+   * Assume the response is a web page
+     * Browser sees the `Content-Type` is `text/html`
+     * Renders the Body as a web page
+
+**Practice Problems**
+
+For a request:
+
+* The HTTP method and the path are required and form part of what is known as the **start line** or **request line**. As of HTTP/1.0, the HTTP version also forms part of the request-line
+* Query parameters are optional
+  * Technically speaking, the path portion of the request-line is known as the 'request-URI', and incorporates the actual path to the resource and the optional parameters if present
+  * In practice, most people refer to this part of the request-line as the 'path'
+* The `Host` header is a required component since HTTP/1.1
+* All other headers are optional
+
+3:9 **<u>Summary</u>**
+
+* A single HTTP message exchange consists of a Request and a Response. The exchange generally takes place between a Client and a Server. The client sends a Request to the server and the server sends back a Response
 
 
 
@@ -227,6 +277,22 @@ From LSBot, in reference to my asking if the way web applications build a statef
 
 
 
+3:9 **<u>Summary</u>**
+
+* HTTP is a stateless protocol. This means that each request/response cycle is independent of the request and responses that came before or those that come after
+* Statefulness can be simulated through techniques which use session IDs, cookies, and AJAX
+
+
+
+4:1 <u>**What to Focus On**</u>
+
+* At its core, HTTP is a set of rules concerned with the syntax and structure of messages exchanged between applications
+* HTTP is a Request-Response protocol
+
+
+
+
+
 ## Explain the difference between `GET` and `POST`, and know when to choose each
 
 3:4 **<u>HTTP Book: What is a URL?</u>**
@@ -272,6 +338,13 @@ From LSBot, in reference to my asking if the way web applications build a statef
 * The browser hides a lot of the underlying HTTP request/response cycle from you
 
 
+
+**<u>Lesson 3 Quiz</u>**
+
+* GET is used to retrieve information. POST is for sending information to a server
+* GET is used to load a web page for viewing. POST is used for logging in.
+  * We use HTTP GET requests to "get" information. When you load the home page of your favorite site, you're using a GET request to access that page
+  * We use HTTP POST requests to send data to the server. An example of an HTTP POST request is a form that sends a user's name and password to a server
 
 
 

@@ -44,9 +44,47 @@ The non-optional parts of a URL are **scheme** and **host**. Obviously modern we
 
 
 
+3:6: **<u>URLs</u>**
+
+* The concept of a URI, or Uniform Resource Identifier, was one of the fundamental elements in Berners-Lee's initial concept of the Web
+* URLs are the most commonly used part of the general concept of a URI
+* The distinction between the two terms URL and URI is a common cause of confusion and contention
+* The terms are often used interchangeably
+* According to RFC3986, a URI is a "sequence of characters that identifies an abstract or physical resource", and a URL refers to "the subset of URIs that, in addition to identifying a resource, provide a means of locating the resource by describing its primary access mechanism (e.g., its network 'location')"
+* A URL is a subset of URI that includes the network location of the resource
+* For our purposes, we don't need to pour over the relevant RFCs and W3C standards
+  * In HTTP, we are dealing with URLs, but it isn't incorrect to call them URIs
+
+**Schemes and Protocols**
+
+* Another point of confusion are the terms 'scheme' and 'protocol'
+* In the context of URL components, the component that precedes the `://` is called the **scheme**
+* In the context of a URL, there is a relationship between the scheme and the protocol used to access the resource but they are not the same thing
+  * In the context of a URL, the scheme identifies which family of protocols should be used to access the resource, e.g. `http://` means we can use the HTTP family but is not specific about the specific protocol version, e.g. `HTTP/1.1`
+  * In the more general or abstract context of a URI, a scheme name is defined as "a specification for assigning identifiers within that scheme" and needn't be related to a communication protocol at all (so in this case, the `http` scheme name refers to a set of rules for assigning unique identifiers within the `http` scheme, and the fact that this scheme relates to the HTTP family of protocols is incidental -- some other schemes have no connection to network communications or locations at all)
+* The canonical form of a scheme name is lower case, e.g. `http`
+  * The canonical form of protocols tends to be upper case, e.g. `HTTP`
+
+**URLs and Filepaths**
+
+* The concept of a URL was derived to a large extent from the combination of domain names, which already existed when Berners-Lee conceived of the Web, and Unix-style file paths
+  * At this point, the intention of the web was to provide access to static HTML file
+  * In the early days, the **path** portion of a URL represented a physical file location on the web server's filesystem
+  * So a URL such as `http://www.mywebsite.com/food/recipes/lasagne.html` could be used to request the `lasagne.html` file from the `recipes` directory under the `food` directory on the web server identified by `www.mywebsite.com`
+* Today, much of the content on the web is generated dynamically
+  * The way the path component of the URL is used or interpreted depends on the application logic, and doesn't necessarily bear any relationship to an underlying file structure on the server
+  * Often the use of the path component involves URL pattern-matching to match the path to a pre-defined '**route**' which then executes some specific logic
+
+3:9 **<u>Summary</u>**
+
+* A URI is an identifier for a particular resource within an information space
+* A URL is a subset of URI, but the two terms are often used interchangeably
+* URL components include the scheme, host (or hostname), port, path, and query string
+* Query strings are used to pass additional data to the server during an HTTP Request. They take the form of name/value pairs separated by and `=` sign. Multiple name/value pairs are separated by an `&` sign. The start of the query string is indicated by a `?`
+
 ## Be able to construct a valid URL
 
-
+`scheme`-`://`-`host`-`:`-`port`-`path`-`?`-`name`-`=`-`value`-`&`-`name`-`=`-`value` ... etc
 
 
 
@@ -85,6 +123,11 @@ From Wikipedia 'Percent-encoding':
   * We convert the character to its numeric code in US-ASCII hexadecimal representation and if it is a single digit we must add a leading `0`
   * This number is then prefixed with `%`
   * So, e.g., `/` becomes `%2F` or `%2f` (either case will work but upper case is preferred by W3C)
+
+3:9 **<u>Summary</u>**
+
+* URL encoding is a technique whereby certain characters in a URL are replaced with a `%` symbol followed by two hexadecimal digits representing the characters ASCII value
+* URL encoding is used if a character has no corresponding character in the ASCII set, is unsafe because it is used for encoding other characters [i.e. `%`], or is reserved for special use within URLs
 
 
 

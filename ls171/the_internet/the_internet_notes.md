@@ -482,6 +482,12 @@ I don't think the DNS lookup is actually in the right place in the list that fol
 
 
 
+3:9 **<u>Summary</u>**
+
+* The Domain Name System (DNS) is a distributed database which maps a domain name to an IP address
+
+
+
 ## Understand the client-server model of web interactions, and the role of HTTP as a protocol within that model
 
 3:4 <u>**HTTP Book: Background**</u>
@@ -491,3 +497,31 @@ I don't think the DNS lookup is actually in the right place in the list that fol
 * Web browsers are HTTP clients, responsible for issuing HTTP requests and processing the HTTP response in a user-freindly manner onto your screen
 * Web browsers are not the only clients: many tools and applications also issue HTTP requests
 * 'Server' as a term can refer both to computers that are configured with software that can respond to requests, and the software itself
+
+
+
+3:5 **<u>Some Background and Diagrams</u>**
+
+**Client-Server**
+
+* HTTP is a stateless protocol for how clients communicate with servers
+* The client sends a request to the server, and the server processes the request and sends a response back
+  * This is how every interaction you have with a website works
+* The word 'server' is severely overloaded
+* A 'server' is an abstraction over the potentially many components that make up the server functionality both with respect to software and hardware
+  * A server might be a distributed system spread over many machines
+  * There may be many intermediary devices involved, such as load balancers, etc
+  * Large server infrastructures run into the hundreds or thousands of machines
+  * Any software component or specific functionality might be distributed over many logical machines, each of which is composed of functionality from multiple physical machines
+* However, from the client's perspective, this infrastructure as a whole represents the 'server' 
+* In terms of software, there are many possible layouts but there are three primary server-side infrastructure pieces or functionalities:
+  * Web server -- typically a server that responds to requests for static assets: files, images, css, JavaScript, etc. These requests don't require any dynamic content, so can be handled by a simple web server
+  * Application server -- where application or business logic resides -- where more complicated requests are handled. This is where an web application developer's server-side code resides
+  * Data store -- persistent storage for data, often a relational database but could be a simple file, a key/value store, document stores, etc. Where data is saved and retrieved from
+* All of these might run on a single machine, or each of these three pieces might be distributed over many machines
+* The data store can be used to *persist* our data between stateless request/response cycles
+
+**HTTP over TCP/IP**
+
+* Most of the time, HTTP is relying on a TCP/IP connection
+* HTTP operates at the application layer and is concerned with structuring the messages that are exchanged between applications; it's actually TCP/IP that's doing all the heavy lifting and ensuring that the request/response cycle gets completed between your browser and the server
