@@ -142,7 +142,12 @@ For a request:
 
 * A single HTTP message exchange consists of a Request and a Response. The exchange generally takes place between a Client and a Server. The client sends a Request to the server and the server sends back a Response
 
+4:13 **<u>Summary</u>**
 
+* HTTP is a *text-based* protocol. HTTP Request and Responses involve sending text between the client and server
+* In order for the protocol to work, the Request and Response must be structured in such a way that both the client and the server can understand them.
+* With HTTP/1.1, the end of the headers is indicated by an empty line
+* The `Content-Length` header can be used to indicate the size of the body. This can help determine where the HTTP message should end
 
 ## Be able to explain what status codes are, and provide examples of different status code types
 
@@ -175,6 +180,12 @@ For a request:
   * This is why you sometimes see a vague error message asking you to contact the System Administrator
 
 Aside: a `301` status code is a permanent redirect, and a `303` status code is like a `302` except it specifies that the method of the request the client makes to `Location` should be `GET`
+
+4:3 **<u>Speaking the Same Language</u>**
+
+* `3xx` level responses don't indicate errors. They are generally used in relation to redirection, and indicate to the client that it must take some additional action in order to complete the request. For instance, the server might be set up to redirect all `http` requests to `https`; the `301` response would include a `Location` header which tells the client where it can now find the resource it originally requested, and if the client is a browser it would automatically issue a new request to the location indicated in the `Location` header. In this situation, the server will often avoid closing the TCP connection, and rather sets the connection to `keep-alive`, since the server expects another request as a result of the `301` response 
+* `4xx` level response codes indicate an error or issue on the client side, i.e. with the request. A `404` error is a general indication that the requested resource does not exist.
+* `5xx` level responses indicate an error on the server. The most common `5xx` response is `500` indicating an internal server error. `5xx` responses usually are outside the control of the requesting software.
 
 
 

@@ -113,9 +113,237 @@
 
 
 
+5:1 **<u>Introduction</u>**
+
+* HTTP is a text-based protocol. HTTP Requests and Responses are transferred across the network in plain text
+* HTTP is a relatively simple protocol, with quite a basic message structure and set of rules
+* These characteristics make it easier to design and build applications that interact with the protocol, the downside is a lack of security
+  * If an HTTP Request or Response is intercepted, the contents of that message can easily be read
+* It is also difficult to know if the source of an HTTP response is trustworthy, or if an HTTP message has been tampered with in transit
+* There are many situations where the ability to securely transfer data is vital
+  * HTTP is used in applications that provide services such as online shopping or banking, as well as many other use cases where security is paramount
+
+
+
+5:2 **<u>What to Focus On</u>**
+
+* HTTP on its own doesn't provide any means of secure message transfer
+  * Using TLS adds a level of security that HTTP lacks
+* TLS provides for secure message exchange over an unsecure channel
+* There are multiple aspects to security
+  * TLS provides a number of different services
+
+
+
+5:7 **<u>Summary</u>**
+
+* HTTP Requests and Responses are transferred in plain text; as such they are essentially insecure
+* We can use the Transport Layer Security (TLS) protocol to add security to HTTP communications
+
+
+
+
+
 ## Be aware of the different services that TLS can provide, and have a broad understanding of each of those services
 
 
 
+5:3 **<u>The Transport Layer Security</u>**
 
+* The Transport Layer Security (TLS) protocol started life as a protocol called SSL (Secure Sockets Layer)
+  * SSL was a proprietary protocol developed by Netscape
+  * SSL was standardized and renamed TLS by the IETF in 1999
+    * TLS and SSL are often used interchangeably
+    * People say SSL Certificates when they are referring to TLS Certificates, Public Key Certificates
+* There have been several versions of TLS since 1999, the most recent being TLS 1.3
+* There are three important security services provided by TLS:
+  * Encryption
+  * Authentication
+  * Integrity
+* Encryption: a process of encoding a message so that it can only be read by those with an authorized means of decoding the message
+* Authentication: a process to verify the identity of a party in the message exchange
+* Integrity: a process to detect whether a message has been interfered with or faked
+* It isn't mandatory for an application which uses TLS that all three of these services are used simultaneously
+  * You could, e.g., design your application to accept encrypted messages from a sender without authenticating who they are
+  * In practice however, all three services are generally used together to provide the most secure connection possible
+
+
+
+5:4 **<u>TLS Encryption</u>**
+
+* Caesar cipher -- simple substitution cypher, letter substitution encrypts the text
+* Vigenere cipher -- letter substitution using a tabula recta and keyword, only those in possession of the keyword can decrypt the encrypted text
+
+**Symmetric Key Encryption**
+
+* The underlying concept seen in the Vigenere cipher, where sender and receiver share a common key, is still used in modern cryptographic systems
+* This is known as **symmetric key encryption**
+  * The same key used to encrypt the message is then used to decrypt the message
+  * This relies on both parties in the communication having access to the key and no one else having access to the key
+  * This works fine if the key can be exchanged securely, as in person, but poses problems over the internet
+  * We cannot send the key in a readable format since it could be intercepted by a third party and used to decrypt our subsequent messages
+
+**Asymmetric Key Encryption**
+
+* Asymmetric Key Encryption, or Public Key Encryption, uses a pair of keys: a public key and a private key
+  * In this system, the key used to encrypt a message and the key used to decrypt it are non-identical
+  * The public key is used to encrypt and the private key is used to decrypt
+  * Messages encrypted with the public key can only be decrypted with the private key
+  * The public key is made openly available but the private key is kept in the sole possession of the message receiver
+  * This form of encryption/decryption is a one-way process
+    * The same key pair used to send a secure message to a party cannot be used by that party to send a response
+    * Using this system, the receiver would need the public key of the sender in order to encrypt a response
+
+**The TLS Handshake**
+
+* To securely send messages via HTTP we want both the request and response to be encrypted in such a way that they can only be decrypted by the intended recipient
+
+* The most efficient way to do this is via symmetric key cryptography
+
+  * The algorithms for asymmetric key cryptography are far more computationally intense
+  * For large volumes of data, the difference in efficiency between the two methods of encryption/decryption become significant
+
+* TLS uses a combination of asymmetric and symmetric key cryptography
+
+  * The bulk of the message exchange is conducted using symmetric key encryption
+  * The initial symmetric key exchange is conducted using asymmetric key encryption
+  * The process by which the initial secure connection is set up is conducted during what is known as the TLS handshake
+
+* TLS assumes TCP is being used at the Transport layer, and the TLS Handshake takes place after the TCP handshake
+
+  1. The TLS Handshake begins with the client sending a `ClientHello` message to the server, immediately after the TCP `ACK`
+     * The `ClientHello` message contains the maximum version of TLS that the client supports, and a list of Cipher Suites that the client supports
+  2. On receiving the `ClientHello` message, the server responds with a `ServerHello` message, which sets the TLS version and Cipher Suite, along with the server's certificate, which contains its public key, and a `ServerHelloDone` marker which indicates to the client that the server has finished with this phase of the handshake
+  3. Once the client receives the `ServerHelloDone` marker, it initiates the key exchange process
+     * This key exchange process enables both client and server to securely obtain a copy of the symmetric encryption key that will be used for the bulk of the secure message transfer between parties
+     * The exact process for generating the symmetric keys will vary depending on which key exchange algorithm was selected as part of the Cipher Suite (e.g. RSA, Diffie-Hellman, etc)
+     * For RSA,
+       * The client generates what's called a 'pre-master secret', encrypts it using the server's public key, and sends it to the server as part of a `ClientKeyExchange` message
+       * The server receives the encrypted 'pre-master secret' and decrypts it using its private key
+       * Both client and server use the 'pre-master secret'  along with some other pre-agreed parameters to generate the same symmetric key
+       * As part of the communication which includes the `ClientKeyExchange` message, the client also sends a `ChangeCipherSpec` flag, which tells the server that encrypted communications should now start using the symmetric keys, along with a `Finished` flag to indicate that the client is now done with the TLS Handshake
+  4. The server sends a message with `ChangeCipherSpec` and `Finished` flags. The client and server can now begin secure communication using the symmetric key
+
+  LS: "We certainly don't expect you to memorize every detail of the various steps involved. Instead, try to form a high-level mental model for how it works. Note also that the exact process will vary according to which version of TLS is used."
+
+* Client sends `ClientHello`
+* Server responds with `ServerHello`/`Certificate`/`ServerHelloDone`
+* Client sends `ClientKeyExchange`/`ChangeCipherSpec`/`Finished`
+* Server responds with `ChangeCipherSpec`/`Finished`
+
+* The TLS Handshake has three main purposes
+  * Agree  which version of TLS to be used in establishing a secure communication
+  * Agree on the algorithms that will be included in the cipher suite
+  * Enable the exchange of the symmetric key that will be used for message encryption
+
+* This complexity impacts performance
+  * The TLS handshake can add up to two round-trips of latency before any application data is sent
+  * This is in addition to the initial round-trip resulting from the TCP handshake
+* There is also the Datagram Transport Layer Security (DTLS), which is based on TLS and is used for UDP rather than TCP
+
+**Cipher Suites**
+
+* A cipher is a cryptographic algorithm
+  * A set of steps for performing encryption, decryption, and other related tasks
+* A cipher suite is a suite, or set, of ciphers
+* TLS uses different ciphers for different aspects of establishing and maintaining a secure connection
+  * There are many different algorithms for performing the key exchange process, for carrying out authentication, for symmetric key encryption, and for checking message integrity
+* The algorithms for performing each of these tasks, when combined, form the cipher suite
+* As part of the `ClientHello` message in the TLS Handshake, the client sends a list of algorithms it supports for each required task, and the server chooses from these according to which algorithms it also supports
+
+
+
+5:5 **<u>TLS Authentication</u>**
+
+* Encryption without authentication does not prevent a malicious third party posing as the party you wish to communicate with, e.g. a hacker might impersonate your bank
+  * Having encryption in this situation does not make you safer, and might even make you more willing to share privileged information
+  * Therefore, we need a means of identifying the other party in our message exchange
+* During the TLS Handshake, as part of its response to the `ClientHello` message, the server provides its certificate
+  * Part of the function of the certificate is to provide the server's public key to the client to encrypt the symmetric key exchange portion of the handshake
+  *  Another function of this certificate is to identify the party providing it
+* The certificate contains various pieces of information, including who the owner is
+  * However, on its own, the certificate proves nothing; a third party might easily acquire such a certificate and then present it as its own
+  * The certificate, and the public key it contains, are only part of an overall system of authentication
+* The exact way the public key is used during this process varies depending on the Authentication algorithm selected as part of the Cipher Suite. Generally, it will be something like:
+  * The server sends its certificate, which includes its public key
+  * The server creates a 'signature' in the form of some (session-specific) data encrypted with the server's *private key*
+  * The signature is transmitted in a message along with the original data from which the signature was created
+  * On receipt of the message, the client decrypts the signature using the server's public key and compares the decrypted data to the original version
+  * If the two versions match then the encrypted version could only have been created by a party in possession of the private key.
+* Following a process such as this, we can identify that the server which provided the certificate during the initial part of the TLS Handshake is in possession of the private key, and is therefore the actual owner of the certificate
+  * However, what is to stop a malicious third-party creating their own key pair and certificate identifying them as, say, a well-known bank?
+  * It is easy to create a fake digital certificate -- how are we to know if a certificate is genuine or not?
+  * This is where Certificate Authorities come in
+
+**Certificate Authorities and the Chain of Trust**
+
+* Certificate Authorities (CAs) are trustworthy sources that issue TLS certificates
+* When a CA issues a certificate, the CA
+  * **Verifies that the party requesting the certificate is who they say they are** -- the way this is done varies by CA and partially depends on the type of certificate being issued. In the case of a domain validated server certificate, for example, it can involve proving that you own the domain by uploading a specific file to a server that is accessible by the domain for which the certificate is being issued
+  * **Digitally signs the certificate being issued** -- this is often done by encrypting some data particular to the certificate with the CA's own private key and using this encrypted data as a 'signature'. The unencrypted version of the data is also added to the certificate. In order to verify that the certificate was issued by the CA, the signature can be decrypted using the CA's public key and checked for a match against the unencrypted version
+* There are different levels of Certificate Authority
+  * An **Intermediate CA** can be any company or body authorized by a **Root CA** to issue certificates on its behalf
+  * A widely-used Intermediate CA is Let's Encrypt, who provide free, automated certificates
+  * The Intermediate CAs will have their certificates signed, possibly other Intermediate CAs, up a chain until we reach a Root CA
+  * Root CA certificates are self-signed. Root CAs are where the chain of trust ends
+* Client software, such as browsers, store a list of these root authorities along with their Root Certificates (which include public keys)
+  * When receiving a certificate for checking, the browser can go up the chain to the Root Certificate stored in its list
+* The purpose of this chain-like structure is the level of security it provides
+  * The private keys of the Root CAs are kept behind many layers of security in order to be kept as inaccessible as possible
+  * This is partly why Root CAs do not issue end-user certificates, but leave that up to the Intermediate CAs
+  * If the private key of a Root CA were to become compromised, the Root CA can revoke the certificate for Intermediate, therefore invalidating all of the certificates down chain, and simply issue a new one
+* Root CAs are trusted because of their reputations gained through prominence and longevity
+  * Root CAs are a small group of organizations approved by browser and operating system vendors
+* Ultimately this system still relies on trust, and as such isn't infallible
+
+
+
+5:6 **<u>TLS Integrity</u>**
+
+* The Encryption and Authentication capabilities of TLS already provide us with a fairly secure system. To add a further layer of security, TLS provides functionality to check the integrity of data transported via the protocol
+
+**TLS Encapsulation**
+
+* The OSI model defines TLS as a Session layer protocol, and so existing in between the Application layer (where HTTP resides) and the Transport layer (where TCP resides). When thinking about TLS, it is useful to think of it as operating between HTTP and TCP
+* When it is transporting application data, TLS encapsulates that data in the same way that we've seen with other Protocol Data Units
+  * The data to be transported forms a payload, and meta data is attached in the form of header and trailer fields
+* The TLS PDU is known as a TLS Record
+  * Header
+    * Content Type
+    * TLS Version
+    * Length
+  * Data Payload
+  * Trailer
+    * MAC (Message Authentication Code)
+    * Padding
+* The main field of interest in terms of message integrity is the MAC (Message Authentication Code) field
+
+**Message Authentication Code**
+
+* The MAC field is similar in concept to the checksum fields we've already seen in other PDUs. However, there is a difference in implementation as well as overall intention
+  * The checksum field in, say, a TCP Segment is intended for error detection (i.e. to test if some data was corrupted in transport)
+  * The intention of the MAC field in a TLS record is to add a layer of security by providing a means of checking that the message hasn't been altered or tampered with in transit
+* The way this is implemented is through the use of a hashing algorithm
+  * The sender creates what is called a *digest* of the data payload
+    * This is effectively a small amount of data derived from the actual data that will be sent in the MAC field
+    * The digest is created using a specific hashing algorithm combined with a pre-agreed hash value
+    * The hashing algorithm to be used and the has value will have been agreed as part of the TLS Handshake process when the Cipher Suite is negotiated
+  * The sender will then encrypt the data payload using the symmetric key, encapsulate it into a TLS Record, and pass this record down to the Transport layer to be sent to the other party
+  * Upon receipt of the message, the receiver will decrypt the data payload using the symmetric key
+    * The receiver will then also create a digest of the payload using the same algorithm and hash value
+    * If the digest created by the receiver matches the digest received in the MAC field, this confirms the integrity of the message
+
+5:7 **<u>Summary</u>**
+
+* TLS encryption allows us to encode messages so that they can only be read by those with an authorized means of decoding the message
+* TLS encryption uses a combination of Symmetric Key Encryption and Asymmetric Key Encryption. Encryption of the initial key exchange is performed asymmetrically, and subsequent communication is symmetrically encrypted
+* The TLS Handshake is the process by which a client and a server exchange encryption keys
+* The TLS Handshake must be performed before secure data exchange can begin; it involves several round-trips of latency and therefore has an impact on performance
+* A cipher suite is the agreed set of algorithms used by the client and server during the secure message exchange
+* TLS authentication is a means of verifying the identity of a participant in a message exchange
+* TLS Authentication is implemented through the use of Digital Certificates
+* Certificates are signed by a Certificate Authority and work on the basis of a Chain of Trust which leads to one of a small group of highly trusted Root CAs
+* The server's certificate is sent during the TLS Handshake process
+* TLS Integrity provides a means of checking whether a message has been altered or interfered with in transit
+* TLS Integrity is implemented through the use of a Message Authentication Code (MAC)
 
