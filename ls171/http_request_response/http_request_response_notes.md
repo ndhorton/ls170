@@ -149,6 +149,18 @@ For a request:
 * With HTTP/1.1, the end of the headers is indicated by an empty line
 * The `Content-Length` header can be used to indicate the size of the body. This can help determine where the HTTP message should end
 
+
+
+6:8 **Summary**
+
+* HTTP has changed considerably over the years, and continues to change
+* Many of the changes to HTTP are focused on improving performance in response to the ever increasing demands of modern networked applications
+* Latency has a big impact on the performance of networked applications. As developers and software engineers we need to be aware of this impact, and try to mitigate against it through the use of various optimizations
+* In building networked applications, there are tools and techniques available to us that work around or go beyond the limitations of basic HTTP request-response functionality
+* For certain use cases, a peer-to-peer architecture may be more appropriate than a client-server architecture
+
+
+
 ## Be able to explain what status codes are, and provide examples of different status code types
 
 **<u>3:4 HTTP Book: Processing Responses</u>**
@@ -186,6 +198,53 @@ Aside: a `301` status code is a permanent redirect, and a `303` status code is l
 * `3xx` level responses don't indicate errors. They are generally used in relation to redirection, and indicate to the client that it must take some additional action in order to complete the request. For instance, the server might be set up to redirect all `http` requests to `https`; the `301` response would include a `Location` header which tells the client where it can now find the resource it originally requested, and if the client is a browser it would automatically issue a new request to the location indicated in the `Location` header. In this situation, the server will often avoid closing the TCP connection, and rather sets the connection to `keep-alive`, since the server expects another request as a result of the `301` response 
 * `4xx` level response codes indicate an error or issue on the client side, i.e. with the request. A `404` error is a general indication that the requested resource does not exist.
 * `5xx` level responses indicate an error on the server. The most common `5xx` response is `500` indicating an internal server error. `5xx` responses usually are outside the control of the requesting software.
+
+
+
+6:3 **<u>HTTP: Past, Present, and Future</u>**
+
+**HTTP/0.9**
+
+* Released in 1991, the original version of HTTP only received a version number retroactively when HTTP/1.0 was released
+* Sometimes called the "one-line protocol", requests were limited to the GET method and consisted only of the request line/start line
+* For requests, the only method was GET, the path had to be simply the path to the resource on the server (not a full URL) and there was no version specified, e.g. `GET /index.html`
+* A response consisted only of a single hypertext document, with no headers or other meta-data such as status codes or version numbers
+* The end of a response was signified by the server closing the connection
+
+**HTTP/1.0**
+
+* Published as an informational RFC, RFC1945, rather than as an official standard
+* Two new HTTP methods were added: `HEAD`, and `POST`
+* The Request-URI portion of the request line could now be a path or an absolute URI
+* The request line now also included the HTTP version number
+* With the `POST` method, requests might now have a body
+* Responses now included the status line, with a status code and status text, as well as the HTTP version used for the response
+* HTTP headers were introduced for both requests and responses
+* `Content-Type` header was a direct response to more varied resources being transmitted (images, for instance) rather than just hypertext files
+
+**HTTP/1.1**
+
+* Published as an official standard in RFC2068 in 1997, and then updated as RFC2616 in 1999
+* Sought to resolve ambiguities and interoperability issues in HTTP/1.0
+* Provided performance improvements to better serve more complex web content
+  * Up until this point, HTTP had used a new TCP connection for every request/response cycle
+    * The client would open a TCP connection and send the request, the server would then send the response and close the connection
+    * Web pages had been increasing in complexity such that a page might contain embedded images, CSS stylesheets (1996) and JavaScript files (1995), and these resources needed to be fetched with a separate HTTP request/response cycle meaning another TCP connection
+  * HTTP/1.1 provided connection re-use, where the same TCP connection could be used for making multiple requests (**keepalive** connections)
+    * This reduced the latency involved in multiple unnecessary TCP handshakes
+    * This also permitted pipelining requests (sending multiple requests without waiting for responses)
+  * Cache-control mechanisms were introduced
+* More methods were added: `PUT`, `DELETE`, `TRACE`, and `OPTIONS`
+
+**HTTP/2**
+
+* Standardized in 2015
+* Added multiplexing of requests to prevent Head of Line blocking in pipelining (at the Application layer, though TCP HOL blocking can still happen)
+* Added header compression
+
+**HTTP/3**
+
+* Adopts the QUIC protocol (built on top of UDP) in place of both TCP and TLS (QUIC essentially incorporates TLS)
 
 
 
@@ -381,4 +440,37 @@ From LSBot, in reference to my asking if the way web applications build a statef
 * These are just some of the techniques web developers use to mimic statefulness despite working with HTTP, a stateless protocol
 * Cookies and sessions are a primary way that modern web apps remember state for each client
 * AJAX plays a role in displaying dynamic content in web applications
+
+
+
+6:5 **<u>Browser Networking APIs</u>**
+
+* The standard HTTP request-response model can be limiting in relation to real-time data synchronization
+  * Real-time data synchronization refers to the process of automatically updating the page in the browser to reflect changes in state on the server-side, .e.g., the number of likes being updated on a social media post without the user taking action
+* Modern browsers expose several APIs that can be used to achieve real-time data synchronization
+
+**XHR**
+
+* XHR is short for XMLHttpRequest
+  * XHR can use JSON, HTML, or plain text in place of XML
+* XHR enables clients to manage request and responses programmatically and asynchronously
+  * The web page can take other actions while waiting for updates from the server
+  * This differs from synchronous JavaScript where the web app has to pause and wait for the server's update before allowing any other actions to happen
+  * XHR is still using the underlying HTTP request-response model, but manages requests programmatically
+* XHR is a key component of Asynchronous JavaScript and XML (AJAX)
+  * AJAX is now a fundamental building block of nearly every modern web app
+* Asynchronous JavaScript allows a web app to perform other actions while waiting for an update from the server
+  * This differs from synchronous JavaScript in which the web app has to pause and wait for the server's update before allowing any other actions to be taken
+* In the early days of the web, nearly every user action generated a request/response cycle and the browser almost always had to completely draw a new page, even if it was the same unchanged page. For predictive typing in forms (such as Google's search form), this was frustratingly slow
+* With the advent of XHR, web pages could send a request to the server and then use the response to alter just a small part of the page in the browser. Suddenly the web became interactive and fast!
+* With AJAX, we can write some JavaScript to respond to a user action, such as clicking on a link or part of a page, and, in response, we can etch some data from the server and update part of the page through DOM manipulation. This is so much faster than the original behavior of web pages. Start typing in the Google search form, and watch how fast the suggestions appear
+* From LSBot, I gather that before the changes to Internet Explorer that enabled XHR and asynchronous JavaScript, the browsers themselves could not process requests/responses asynchronously. The lack of a browser API like XHR is why any action would cause the page to freeze while the request was made and the response waited for, and why the page was nearly always redrawn completely. Other asynchronous JavaScript mechanisms now exist, like `fetch()`
+* **Don't worry too much about what all this means for now. We'll explore it in depth in the front-end courses**
+* As well as enabling AJAX, XHR can be used to provide real-time notification functionality
+  * Since we can manage requests and responses asynchronously and programmatically, we could write a script that runs in the background of our application and issues a request to the server periodically (say, every 60 seconds) to check for updates
+  * This kind of implementation is referred to as **polling**
+* One of the main issues with polling is that there is the potential for lots of unnecessary checks
+  * There is a more efficient version of this mechanism called **long-polling**
+* With long-polling, the client makes a request, but rather than returning an empty or negative response, the server keeps the connection idle until an update is available and then issues a response
+* While XHR is popular for "real-time" delivery of data updates via the use of polling or long-polling, it may not be the most performant solution when compared to the SSE (Server-Side Events) and WebSocket APIs
 
