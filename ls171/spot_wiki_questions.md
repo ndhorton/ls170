@@ -291,11 +291,7 @@ These protocols can be grouped into layers according to the aspect of communicat
 
 At the highest level of both models is the Application layer. Application layer protocols such as HTTP or SMTP describe the structure that messages should have to be intelligible between networked applications using the protocol to communicate over the network (e.g. a web client and a web server).
 
-The TCP/IP model's Application layer roughly includes the Presentation and Session layers from the OSI model. Below these is the Transport layer. Protocols at the Transport layer enable interprocess communication between networked processes (usually on different hosts). 
-
-Below the Transport layer is the Network/Internet layer. The role of protocols at this layer (now almost always the Internet Protocol) is to enable inter-network communication.
-
-Below the Network/Internet layer is the Link/Data Link layer. This is the lowest layer of the TCP/IP model. The OSI model also formally includes the Physical layer below it.
+The TCP/IP model's Application layer roughly includes the Presentation and Session layers from the OSI model. Below these is the Transport layer. Protocols at the Transport layer enable interprocess communication between networked processes (usually on different hosts). Below the Transport layer is the Network/Internet layer. The role of protocols at this layer (now almost always the Internet Protocol) is to enable inter-network communication. Below the Network/Internet layer is the Link/Data Link layer. This is the lowest layer of the TCP/IP model. The OSI model also formally includes a Physical layer below, referring to the physical infrastructure that makes up the network.
 
 Each layer of protocols provides a service to the layer above and encapsulates data from the layer above as the data payload of a Protocol Data Unit. The Protocol Data Unit (PDU) adds metadata in the form of a header and sometimes a trailer to the data payload. For instance, the data payload of a Network layer PDU is generally the PDU of a Transport layer protocol; in turn, the PDU of the Network layer becomes the data payload of a Data Link layer PDU. The contents or structure of the data encapsulated thus are of no concern to the protocol providing the encapsulation. This encapsulation allows many different protocols at one layer to make use of a protocol at the layer below without any special considerations.
 
@@ -335,41 +331,31 @@ This whole process introduces an entire round-trip of latency before application
 
 Like TCP, UDP provides interprocess communication between networked processes, with multiplexing and demultiplexing provided by a system of port numbers. Of the reliability services that TCP provides, UDP offers only basic error detection through checksums. This unreliability makes UDP faster than TCP, but it also offers flexibility. Developers can implement only the reliability features they need on top of UDP for the specific needs of their application. UDP is a often chosen for applications like voice calling, video calling, and competitive multiplayer games, where latency (or 'lag') is a much greater problem than lost packets.
 
-Protocols at each layer from the Physical layer to the Transport layer combine to offer reliable inter-process communication end-to-end between networked processes running on hosts on different networks around the world. These protocols make the Internet possible, but they don't in themeselves define the services available on the Internet. There are various services that are accessible through the Internet, with the most prominent being the World Wide Web, or simply the web. The ubiquity of the web has often lead people to confuse it with the Internet itself, but it is simply one of the services and applications the underlying Internet sustains.
+Protocols at each layer from the Physical layer to the Transport layer combine to offer reliable inter-process end-to-end communication between networked processes running on hosts on different networks around the world. These protocols make the Internet possible, but they don't in themselves define the services available on the Internet. These services require Application layer protocols. There are various services that are accessible through the Internet, with the most prominent being the World Wide Web, or simply the web. The ubiquity of the web has often lead people to confuse it with the Internet itself, but it is simply one of the services and applications the underlying Internet sustains.
 
-When we enter a URL like `http://google.com/` into the address bar of a web browser, a series of processes takes place before the web page can be displayed. A URL, or Uniform Resource Locator, identifies a resource on the Web. A resource is anything that you can interact with on the web. A URL is a string of characters and consists of several components. The scheme (here `http`) tells the browser what family of protocols should be used in accessing the resource. The `http` scheme is related to the HTTP family of protocols, which stands for HyperText Transfer Protocol.
+When we enter a URL like `http://www.example.com/index.html` into the address bar of a web browser, a series of processes takes place before the web page can be displayed. A URL, or Uniform Resource Locator, identifies a resource on the Web. A resource is a generic term for anything that you can access on the web with a URL. A URL is a string of characters and consists of several components. The scheme (here `http`) tells the browser what family of protocols should be used in accessing the resource. The `http` scheme is related to the HTTP family of protocols, which stands for HyperText Transfer Protocol.
 
 An Application layer protocol, HTTP is the primary protocol of the web. HTTP defines how the messages passed between web client and web server should be structured. HTTP communications follow a simple pattern called the HTTP request/response cycle. An HTTP client sends a request message to a web server and then waits for an response. The server always sends a response, even if the response is simply an error message. HTTP is a connectionless, stateless protocol, which means that each request/response cycle is treated as independent of any previous requests and responses. This means that web developers have to employ a variety of techniques to give web applications an appearance of statelessness.
 
-After we enter `http://google.com/` into the address bar, our browser prepares an HTTP request to the server named in the URL. Requests and responses are essentially text messages. The first line of the request, known as the request or start line, contains the HTTP method, the path, and the version of HTTP we are using. When, as here, we are retrieving content from the server, we generally use the `GET` HTTP method. If we were sending data to the server to alter data stored on the server, we would generally use the `POST` request. There are a handful of other methods. The path is the resource we are requesting from the server. At the beginning of the web, paths corresponded to actual Unix-style pathnames on the web server's filesystem; since so much web content is now dynamically generated rather than static files, the path might derive its meaning for the server from the web application logic instead.
+After we enter `http://wwww.example.com/index.html` into the address bar, our browser prepares an HTTP request to the server named in the URL. Requests and responses are essentially text messages. The first line of the request, known as the request or start line, contains the HTTP method, the path, and the version of HTTP we are using. When, as here, we are retrieving content from the server, we generally use the `GET` HTTP method. If we were sending data to the server to alter data stored on the server, we would generally use the `POST` request. There are a handful of other methods.
+
+As well as a scheme and a host, our URL contains a path component, `/index.html`. The path is the specific resource we are requesting from the server. In the early days of the web, paths corresponded to actual Unix-style pathnames on the web server's filesystem; this might still be the case, but since so much web content is now dynamically generated rather than static files, the path might now derive its meaning for the server from the web application logic instead of referring to an actual file.
+
+An HTTP request may also contain headers, which are key-value pairs. From HTTP/1.1 onwards, a `Host` header became mandatory, whose value field in our case would be `www.example.com`. HTTP requests might also have a body, depending on the HTTP method used. The body contains data to be sent to the server. `GET` requests do not contain a body, though they can pass limited information to the server through the URL itself in the form of a query string. A query string component comes after the path, beginning with a `?` character, and contains key-value pairs; the query string is commonly used to pass search terms to search engines.
+
+The host part of the URL gives the human-readable domain name of the server, but our HTTP request will need to be sent over the Internet, which relies on IP addressing. Resolving a human-readable domain name to its corresponding IP address is done by the Domain Name System (DNS). DNS is a hierarchical, distributed database that maps domain names to IP addresses. The database is distributed world-wide in a hierarchically traversable fashion, so that no single DNS server needs to keep a complete record of every domain name mapping. If the DNS server of our Internet Service Provider (ISP) does not have a record for `example.com`, the query is passed to another server further up the hierarchy, and if that server cannot find a record then the query will be passed on again, and so on until the query is resolved. 
+
+Our HTTP request is encapsulated as the data payload of a TCP segment, whose Source Port will be randomly chosen and whose Destination Port, since we are sending our data to an HTTP server, will be port `80`. The protocols of common Internet services such as HTTP have well-known ports on which servers listen for incoming messages. Next, the TCP segment is encapsulated as the data payload of an IP packet, whose Destination IP Address is filled in thanks to a DNS query for `example.com`. The packet is then encapsulated as an Ethernet frame and sent via the switch to our router, our default gateway to other networks.
+
+From our local router, the packet takes a series of hops between routers across the Internet and finally arrives at the router directly connected to our destination network. The packet is sent to the server, which de-encapsulates the various headers and trailers and passes the HTTP request to the web server process running on that machine. The web server processes the request and prepares an HTTP response.
+
+An HTTP response is structured similarly to a request. Instead of a request line, the response begins with a status line, which contains a status code and accompanying status text which indicates the outcome of the request. For successful requests, this will be `200 OK`. Next, there are optional headers and an optional body. The body of the request often contains a requested resource, such as an HTML page.
+
+When the HTTP response has been created, it will then be encapsulated in a TCP segment, which in turn is encapsulated in an IP packet and so on. The packet is sent back to the server's local gateway and back across the Internet to our router and finally to our computer. Our system strips the various headers and footers and delivers the HTTP response to our browser. The browser interprets and renders the HTML, which usually involves making additional requests for the content referenced by the HTML document: JavaScript files, CSS stylesheets, images, and so on. Each of these HyperText-referenced resources must be fetched from the server with an HTTP request/response cycle of its own.
 
 
 
-Client/Server model
 
-DNS
-
-HTTP request/response cycle
-
-TLS
-
-TCP
-
-IP
-
-Ethernet
-
-Switch
-
-Router
-
-Back up the network stack
-
-Web server, application server, data store
-
-HTTP Response
-
-Back down the stack and back across the network
 
 
 
