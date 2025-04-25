@@ -36,6 +36,10 @@ A network, its simplest, could be two computers connected in such a way that the
 
 **What are LAN and WLAN?**
 
+A Local Area Network is generally multiple computers and other devices connected via cables to a central switch or hub. The computers on the network can exchange data via the central switch or hub. In a Wirless LAN (WLAN), the computers and other devices are connected to the switch or hub through wireless technologies (radio waves). The fact that computers need to be directly connected to the switch or hub, whether via cables or wireless, is what makes a LAN 'local'.
+
+
+
 From LS:
 
 A LAN is, generally, "multiple computers and other devices connected via a network bridging device such as a hub or, more likely, a switch. The computers are all connected to this device via network cables and this forms the network."
@@ -335,7 +339,7 @@ Protocols at each layer from the Physical layer to the Transport layer combine t
 
 When we enter a URL like `http://www.example.com/index.html` into the address bar of a web browser, a series of processes takes place before the web page can be displayed. A URL, or Uniform Resource Locator, identifies a resource on the Web. A resource is a generic term for anything that you can access on the web with a URL. A URL is a string of characters and consists of several components. The scheme (here `http`) tells the browser what family of protocols should be used in accessing the resource. The `http` scheme is related to the HTTP family of protocols, which stands for HyperText Transfer Protocol.
 
-An Application layer protocol, HTTP is the primary protocol of the web. HTTP defines how the messages passed between web client and web server should be structured. HTTP communications follow a simple pattern called the HTTP request/response cycle. An HTTP client sends a request message to a web server and then waits for an response. The server always sends a response, even if the response is simply an error message. HTTP is a connectionless, stateless protocol, which means that each request/response cycle is treated as independent of any previous requests and responses. This means that web developers have to employ a variety of techniques to give web applications an appearance of statelessness.
+An Application layer protocol, HTTP is the primary protocol of the web. HTTP defines how the messages passed between web client and web server should be structured. HTTP communications follow a simple pattern called the HTTP request/response cycle. An HTTP client sends a request message to a web server and then waits for an response. The server always sends a response, even if the response is simply an error message. HTTP is a stateless protocol, which means that each request/response cycle is treated as independent of any previous requests and responses. This means that web developers have to employ a variety of techniques to give web applications an appearance of statefulness.
 
 After we enter `http://wwww.example.com/index.html` into the address bar, our browser prepares an HTTP request to the server named in the URL. Requests and responses are essentially text messages. The first line of the request, known as the request or start line, contains the HTTP method, the path, and the version of HTTP we are using. When, as here, we are retrieving content from the server, we generally use the `GET` HTTP method. If we were sending data to the server to alter data stored on the server, we would generally use the `POST` request. There are a handful of other methods.
 
@@ -343,13 +347,13 @@ As well as a scheme and a host, our URL contains a path component, `/index.html`
 
 An HTTP request may also contain headers, which are key-value pairs. From HTTP/1.1 onwards, a `Host` header became mandatory, whose value field in our case would be `www.example.com`. HTTP requests might also have a body, depending on the HTTP method used. The body contains data to be sent to the server. `GET` requests do not contain a body, though they can pass limited information to the server through the URL itself in the form of a query string. A query string component comes after the path, beginning with a `?` character, and contains key-value pairs; the query string is commonly used to pass search terms to search engines.
 
-The host part of the URL gives the human-readable domain name of the server, but our HTTP request will need to be sent over the Internet, which relies on IP addressing. Resolving a human-readable domain name to its corresponding IP address is done by the Domain Name System (DNS). DNS is a hierarchical, distributed database that maps domain names to IP addresses. The database is distributed world-wide in a hierarchically traversable fashion, so that no single DNS server needs to keep a complete record of every domain name mapping. If the DNS server of our Internet Service Provider (ISP) does not have a record for `example.com`, the query is passed to another server further up the hierarchy, and if that server cannot find a record then the query will be passed on again, and so on until the query is resolved. 
+The host part of the URL gives the human-readable domain name of the server, but our HTTP request will need to be sent over the Internet, which relies on IP addressing. Resolving a human-readable domain name to its corresponding IP address is done by the Domain Name System (DNS). DNS is a hierarchical, distributed database that maps domain names to IP addresses. The database is distributed world-wide in a hierarchically traversable fashion, so that no single DNS server needs to keep a complete record of every domain name mapping. If the DNS server of our Internet Service Provider (ISP) does not have a record for `www.example.com`, the query is passed to another server further up the hierarchy, and if that server cannot find a record then the query will be passed on again, and so on until the query is resolved. 
 
-Our HTTP request is encapsulated as the data payload of a TCP segment, whose Source Port will be randomly chosen and whose Destination Port, since we are sending our data to an HTTP server, will be port `80`. The protocols of common Internet services such as HTTP have well-known ports on which servers listen for incoming messages. Next, the TCP segment is encapsulated as the data payload of an IP packet, whose Destination IP Address is filled in thanks to a DNS query for `example.com`. The packet is then encapsulated as an Ethernet frame and sent via the switch to our router, our default gateway to other networks.
+Our HTTP request is encapsulated as the data payload of a TCP segment, whose Source Port will be randomly chosen and whose Destination Port, since we are sending our data to an HTTP server, will be port `80`. The protocols of common Internet services such as HTTP have well-known ports on which servers listen for incoming messages. Next, the TCP segment is encapsulated as the data payload of an IP packet, whose Destination IP Address is filled in thanks to a DNS query for `www.example.com`. The packet is then encapsulated as an Ethernet frame and sent via the switch to our router, our default gateway to other networks.
 
 From our local router, the packet takes a series of hops between routers across the Internet and finally arrives at the router directly connected to our destination network. The packet is sent to the server, which de-encapsulates the various headers and trailers and passes the HTTP request to the web server process running on that machine. The web server processes the request and prepares an HTTP response.
 
-An HTTP response is structured similarly to a request. Instead of a request line, the response begins with a status line, which contains a status code and accompanying status text which indicates the outcome of the request. For successful requests, this will be `200 OK`. Next, there are optional headers and an optional body. The body of the request often contains a requested resource, such as an HTML page.
+An HTTP response is structured similarly to a request. Instead of a request line, the response begins with a status line, which contains a status code and accompanying status text which indicate the outcome of the request. For successful requests, this will be `200 OK`. Next, there are optional headers and an optional body. The body of the request often contains a requested resource, such as an HTML page.
 
 When the HTTP response has been created, it will then be encapsulated in a TCP segment, which in turn is encapsulated in an IP packet and so on. The packet is sent back to the server's local gateway and back across the Internet to our router and finally to our computer. Our system strips the various headers and footers and delivers the HTTP response to our browser. The browser interprets and renders the HTML, which usually involves making additional requests for the content referenced by the HTML document: JavaScript files, CSS stylesheets, images, and so on. Each of these HyperText-referenced resources must be fetched from the server with an HTTP request/response cycle of its own.
 
@@ -359,46 +363,268 @@ TLS requires what is known as the TLS handshake before secure messages can be se
 
 
 
+**What is a MAC address and what is its role in network communication?**
+
+When a network-enabled device like a Network Interface Card (NIC), found in computers and laptops, is produced, it is assigned a Medium Access Control (MAC) Address. The human-readable form of a MAC Address consists of six pairs of hexadecimal digits. Since MAC addresses are generally fixed permanently at manufacture, the MAC address is sometimes called the physical address, or burned-in address.
+
+MAC addresses are used by Data Link layer protocols such as Ethernet and WiFi for addressing individual hosts on the same network. If a host on a Local Area Network needs to send some data to a host on the same network, the data is encapsulated in an Ethernet frame, whose header contains a Source MAC Address and Destination MAC Address fields. The Ethernet frame is sent out through the network interface to the connected central switch.
+
+The switch uses MAC addresses to forward frames to their intended recipient. To do this, the switch consults its MAC Address Table, which maps the Destination MAC Address in an Ethernet header to the specific port on the switch to which that host is connected.
+
+In theory, MAC addresses should be unique, but in reality this is not always the case. Nevertheless, the chance of two devices with identical MAC addresses being attached to the same network is small enough that this rarely causes problems.
+
+MAC Addresses are not suitable for inter-network addressing, which uses IP addressing to route data between networks. Where IP addresses are hierarchically-structured, MAC addresses are flat; where IP addresses are logical, MAC addresses are physical. A MAC address is not hierarchical, which would mean routers would need to keep track of every MAC address of every machine on the Internet to route packets. Furthermore, since MAC addresses are physical, these impossibly vast routing tables would need to be updated every time a portable device like a laptop or phone was disconnected from one network and connected to another.
 
 
 
-
-**What is a MAC address and what is its role in network communication?** 
 **Give an overview of the Link/Data Link Layer**
+
+The Link layer of the TCP/IP model roughly corresponds to the Data Link layer of the OSI model. The responsibilities of protocols at this layer are to address devices connected to the physical network and to move data over the network between them. The protocols at this layer are only concerned with moving data across the same network; they are not responsible for routing data between networks.
+
+The form of addressing used at the Data Link layer is the MAC address, an address given permanently to a network-enabled device at manufacture. The most commonly used protocol at this layer is the Ethernet protocol. The PDU of the Ethernet protocol is called an Ethernet frame. An Ethernet frame encapsulates data from the layers above as a data payload, and adds a header and trailer, which contain metadata such as the Source MAC Address and Destination MAC Address.
+
+A simple Local Area Network uses a switch as a central device to direct data traffic between hosts on the same network. Traditional switches operate at the Data Link layer, forwarding a frame received from one host to the host the frame is addressed to by using a MAC Address Table to map the Destination MAC Address given in the frame header to the port of the switch that the destination host is connected to.
+
+
+
 **What is included in an Ethernet frame?**
+
+An Ethernet frame consists of a header, an encapsulated data payload, and a trailer. The most salient fields of the header are the Source MAC Address (that of the sender) and the Destination MAC Address (that of the host the frame is intender for). The trailer contains a checksum, the Frame Check Sequence, to detect data corruption. If the checksum generated by the receiver doesn't match the FCS, the frame is dropped without re-transmission.
+
+
+
 **Give an overview of the Internet/Network Layer and it's role.**
+
+Protocols at the Internet/Network layer are responsible for enabling inter-network communication. The overwhelmingly dominant protocol at this layer is the Internet Protocol (IP). IP provides routing via IP addresses and encapsulation of data from the layers above (most proximately the Transport layer) as the data payload of a PDU called an IP packet. The header of a packet contains a Source IP Address and a Destination IP address, which is used to route the packet from a host on one network to a host on a different network.
+
+The layer below, the Data Link layer, is responsible for addressing and exchanging data between hosts on the same network. However, the form of addressing used at the Data Link layer, MAC addressing, is not suitable for communication between hosts on different networks. MAC addresses are burned-in and flat. IP addresses, conversely, are logical and hierarchical. An IP address is hierarchical in that its structure reflects the location of the host within a hierarchy of sub-networks. An IP address is logical in that a new IP address can be assigned every time a device is connected to a new network. This means that unlike a MAC address, which is permanently assigned to a device and consists of a flat, mostly arbitrary number, an IP address reflects the current position of the device it identifies within a logical, hierarchical network address space. This allows IP addresses to be used by routers to route data between networks in a series of hops, with each hop bringing the data closer to its destination.
+
+There are two versions of IP in use; IPv4 is the older and still more dominant version, while IPv6 is very gradually being introduced. An IPv4 address is only 32 bits in size, which limits the number of available addresses to around 4.3 billion (2^32). The actual available number is even smaller since some ranges are reserved for various purposes. This limit already requires workarounds involving Network Address Translation (NAT) to serve the existing number of devices. IPv6 addresses are 128-bit, yielding a truly vast address space that should ensure the availability of address spaces for the foreseeable future.
+
+The human readable form of the 32-bit IPv4 address is divided into four groups of eight bits (octets), each of which is represented as a decimal number from 0 to 255, separated from each other by dots. E.g. `106.175.1.203`.
+
+The Internet/Network layer provides the minimum functionality for the Internet to exist, allowing data to be sent from a host on one network to a host on another network, potentially anywhere in the world. However, to actually create a path from an application or process running on the sender to a process running on the receiver, we need protocols at the layer above, the Transport layer.
+
+
+
 **What is IP?**
+
+The Internet Protocol (IP) is the overwhelmingly dominant protocol at the Internet/Network layer of network communication. The role of IP is to provide routing through IP addressing, and to encapsulate data from the Transport layer into the data payload of a PDU called an IP packet. 
+
+The older, still dominant version of IP is IPv4. IPv6 is gradually being introduced. IPv4 addresses are only 32 bits in length, which limits the available number of addresses to around 4.3 billion. This limit already requires workarounds in order to serve the existing number of Internet-connected devices. IPv6 addresses are 128 bits, providing a truly vast number of unique IP addresses (2^128), more than enough for the foreseeable future.
+
+The human readable form of a 32-bit IPv4 address is divided into groups of eight bits (octets), each of which is represented as a decimal number from 0 to 255, with the octets separated by dots. E.g., `106.128.1.202`.
+
+IP addresses are logical and hierarchical. IP addresses are logical in that they can be assigned and revoked as devices are connected and disconnected from various networks. The IP address space is divided into a hierarchy of sub-networks (in a scheme known as subnetting). These properties make IP addresses suitable for routing data between different networks, since an IP address essentially gives the current position of a host and its local network within the IP network. This allows routers to route data between networks and across the Internet in a series of hops, with each hop bringing the packet closer and closer to the destination. This is impossible with MAC addresses, since a MAC address is flat (mostly arbitrary) and generally fixed or 'burned-in'.
+
+As well as routing capability via IP addresses, IP provides encapsulation of data from the Transport layer above into the data payload of an IP packet. If the data is large it may be fragmented, sent as multiple packets, and then reassembled by the receiver; several fields of the IP packet header relate to fragmentation including the Fragment Offset field. The header also contains the Source IP Address, Destination IP Address, and a field containing a Time to Live (TTL) value. The TTL value indicates how many hops a packet can take before it is discarded, and is decremented at each hop. This is to prevent routing errors keeping data bouncing around indefinitely and causing network congestion.
+
+IP enables us to send data from a host on one network to a host on another network, potentially on the other side of the world; thus, IP provides the functionality for a minimum viable Internet.
+
+
+
 **What is IP address?** 
+
+An IP address is a hierarchical, logical address that is a feature of the Internet Protocol (IP), the dominant protocol at the Network/Internet layer. IP addresses allow data to be routed between a host on one network and and host on another network.
+
+There are two versions of IP in use. The older and still more dominant, IPv4, has 32 bit addresses, while IPv6 has 128-bit addresses. Since 32 bits only provides around 4.3 billion IPv4 addresses, workarounds are already needed to serve the existing number of Internet-connected devices. IPv6's 128 bit address space provides a truly vast number of unique addresses, more than enough for the foreseeable future.
+
+In human readable form, IPv4 addresses are divided into four groups of eight bits, or octets. Each dot-separated octet is represented as a decimal number between 0 and 255. E.g. `106.128.1.233`
+
+MAC addressing, the form of address used by the layer below the Network layer, the Data Link layer, is unsuitable for inter-network addressing since MAC addresses are flat (mostly arbitrary) and burned-in. IP addresses, by contrast, are hierarchical and logical. The IP address space is hierarchically divided into subnetworks of decreasing size (in a scheme known as subnetting). IP addresses are logical in that they can be assigned and revoked as devices are connected to and disconnected from any given subnetwork within the IP network. This means that an IP address gives the current logical position of a host and the subnetwork it is connected to within the overall IP network, and this is why IP addressing is suitable for routing between networks. Routers can route traffic from one network to another, from one router to another, in a series of hops across the Internet, with each hop bringing the data closer to its destination. Each router only needs to maintain records in its routing table for the proximate routers in the IP network hierarchy, whereas with flat MAC addresses, each router would need to maintain the address of every machine on the Internet in order to forward traffic.
+
+
+
 **What are the components of IP addresses?** 
+
+Structure of an IP address.
+
+Since these are meant to be questions that expand beyond the course, I think it is also alluding to the Network part and the Host part. The Network part identifies the network to which the device belongs, and determines the range of IP addresses within a certain subnet. This is used by routers to route packets to the correct network defined by the Network address. The Host portion identifies the specific device on the network. This is used to deliver the packet to the specific destination host. The Network address can be derived from an IP address when combined with a Subnet Mask or CIDR Network Prefix. An IP address in binary form is a string of bits. The first N bits form the Network part of the address, that is the part of the address common to all IP addresses within that subnet. The remaining bits identify the particular host within that subnet. The network prefix in CIDR notation gives the number N, the number of bits that define the network. If we set all remaining bits (the Host part) to `0`, we have the Network Address of the subnet. If we set all the remaining bits to `1`, we have the Broadcast address of the subnet. All remaining combination of bits in the Host part are valid IP addresses for individual hosts within the subnet (including the address of the router serving as gateway to the subnet).
+
+The below is mostly from LS, it does not go in to the details of Network Part and Host Part at all:
+
+"IP addresses are logical. This means that they are assigned when a device is connected to a particular network. The IP address the device will be assigned must be chosen from a range of addresses available to the local network to which it is connected. This range is defined by a network hierarchy. The overall network is split into logical subnetworks, with each defined by the range of IP addresses in the subnet. The first address in this range is the Network Address and the last is the Broadcast Address. This division of a network into parts is known as sub-netting. Subnets can be split into further subnets, creating tiers in a hierarchy."
+
+"The Network Address is the first address in a range of IP addresses assigned to a specific network segment, e.g. `109.156.106.0` in the range `109.156.106.0` to `109.156.106.255`. A network address uniquely identifies a network segment within the larger Internet hierarchy. This identification is essential for routing. A router that wants to forward an IP packet to any address in the entire range only needs to keep a record of which router on the network controls access to the segment with that network address. This creates a hierarchical structure that simplifies routing. Network addresses help define the boundaries of subnets. When networks are divided through subnetting, each subnet gets its own network address."
+
+""
+
 **What is a packet in computer networking?**
-**Why do we need both MAC addresses and IP addresses?** 
+
+A packet in computer networking is the PDU of the Internet Protocol, the predominant protocol used at the Network/Internet layer.
+
+**Why do we need both MAC addresses and IP addresses?**
+
+The course itself only covers why we need IP addresses in addition to MAC addresses for inter-network communication. IP addressing was developed because of problems with scalability inherent to MAC addressing.
+
+LSBot on why IP addresses cannot simply replace MAC addresses:
+
+* Hardware Identification. Network interfaces need to be identified at the physical level when they first join a network and before the host receives an IP address
+* Local Network Efficiency. On a local network, devices communicate directly via MAC addresses without the overhead of IP processing
+* Network Protocol Independence. MAC addressing works regardless of which higher-level protocols are being used, allowing for flexibility in network design.
+
+I think essentially, MAC addresses are protocol-agnostic whereas IP addresses are specific to a more abstract way of delivering data between different networks. Different physical technologies require different protocols beneath the Network layer (e.g. Ethernet vs WiFi) and they can all use MAC addresses to identify different types of physical device. IP addressing works at a more abstract level, where the problem space is more to do with routing (a graph problem essentially) rather than the low-level details of getting bits from one type of physical device across a physical medium to another physical device. The aspects of communication the address schemes deal with are very different, and so IP addresses cannot simply replace or supersede the low-level MAC addresses.
+
+
+
 **What is DNS and how does it work?**
+
+The Domain Name System (DNS) is a distributed database that maps memorable Domain Names (such as `www.google.com`) to IP addresses (such as `172.217.169.4`). DNS means that, for instance, people only need to remember the Domain name of a web server and not the IP address, which is generally much harder to remember, and the web browser can automatically make a DNS request in order to obtain the IP address.
+
+DNS databases are stored on DNS servers, which are hierarchically organized. This hierarchical organization means that no single DNS server needs to store the entire database, which would be prohibitively large and complex to update. If a DNS server cannot find a record for a DNS query, the query is relayed to another server in the hierarchy, and so on until the query is resolved.
+
+
+
+
+
 **How do port numbers and IP addresses work together?**
+
+The combination of an IP address and a TCP or UDP port number combine to enable end-to-end addressing for communication between networked processes running on different devices on different networks. The IP address uniquely identifies a host and the port uniquely identifies a process running on that host.
+
+An IP address and a port number thus define what is known as an Internet socket. An Internet socket, such as a TCP/IP socket, is a communication end-point for inter-process communication between two networked processes, usually though not always running on different machines.
+
+Sockets are implemented as objects, which can maintain state about a connection. For instance, a TCP server will instantiate a TCP/IP listening socket object defined by the IP address of the server and the TCP port that will be used to receive incoming messages. When a client sends a SYN message to the server, the server will instantiate a new TCP/IP socket object defined not only by the IP address/port pair of the server but the address/port pair of the client. These four pieces of information are known as a four-tuple. This new socket object is then used as the communication endpoint for the rest of the TCP handshake and for the lifetime of this connection between client and server.
+
+
+
+
+
 **What is a checksum and what is it used for? How is it used?**
+
+Checksums are used for error detection by protocols at various different layers of network communication. Every bit of data transmitted over the network is subject to the possibility of errors and data corruption. 
+
+The sender generates a checksum using a common algorithm and the PDU data as input, and then includes the generated value in the checksum field of the PDU header or trailer. In an Ethernet frame, this is the Frame Check Sequence field in the trailer; TCP and UDP PDUs include a Checksum field in the header.
+
+The receiver then inputs the received data into the same algorithm and if the values do not match then an error is detected and the PDU is discarded. Ethernet and UDP simply drop the PDU at this point, but TCP, since it offers reliable data transfer, can then initiate retransmission of the lost data.
+
+Since protocols at the layers above and below implement checksums, this could be seen as making Network layer checksums redundant; IPv4 includes a checksum header, but IPv6 has dispensed with it.
+
+
+
 **Give an overview of the Transport Layer.** 
+
+The Transport layer is situated below the Application layer and above the Network/Internet layer. The layers below the Transport layer combine to enable a host on one network to send data to a host on another network. However, once the data reaches the destination host, these lower level protocols cannot direct the data to the application, service or process running on the destination host that the data is intended for.
+
+Furthermore, there may be many networked processes running on a host. Even on a home computer or laptop, we may have a web browser, an email client, a messaging application, and a music streaming service running at the same time. The network layers up to the Internet/Network layer provide what is essentially a single channel of network communication defined by IP addressing. The role of the Transport layer is to multiplex data streams from the various networked processes we have running on a single machine over this single channel and then to demultiplex them at the other end, such that a process running on one host can exchange data with a process running on a different host. This is to say, the Transport layer combines with the lower layers to provide end-to-end inter-process communication between networked processes running on different hosts on different networks.
+
+The predominant protocols at the Transport layer are the Transmission Control Protocol (TCP) and the User Datagram Protocol (UDP). Both TCP and UDP offer multiplexing and demultiplexing of data over a network connection via a system of ports. A port is a number used as a unique identifier for a process running on a host.
+
+The PDU of the TCP protocol is called a TCP Segment, which encapsulates Application layer data as a data payload. A segment header includes fields for the Source Port and Destination Port. The Source Port is the port number (the unique identifier) for the application or process sending the data. The Destination Port is the port number of the process the data is intended for. The TCP segment is encapsulated in turn as the data payload of an IP packet, whose header contains the Source IP Address and Destination IP Address. IP addressing is used to route the packet to the destination host on the destination network. The destination host de-encapsulates the TCP segment, and then the Destination Port is used to direct the data to the correct process running on that host. It is therefore the combination of an IP address and Transport layer port number that forms an end-point for inter-process communication between networked processes. These networked inter-process communication end-points defined by an IP address/port pair are known as internet sockets. This is how multiplexing and demultiplexing is achieved by Transport layer protcols.
+
+In addition to this, TCP provides reliable data transfer over an unreliable connection. None of the protocols at the layers below the Transport layer offer reliable delivery of data. Sometimes packets get lost, or data becomes corrupted and packets are dropped as a result, and neither Data Link protocols nor IP handle re-transmission of lost data. This makes the network below the Transport layer inherently unreliable. TCP offers reliable delivery of data, such that data sent through a TCP/IP internet socket is guaranteed to arrive eventually at its destination socket and in the correct order. TCP offers several services that combine to guarantee reliability: in-order delivery, error detection through checksums, re-transmission of lost data, and de-duplication of duplicate segments that occur as a result of the system of re-transmissions.
+
+To provide these services, TCP uses a system of sequence numbers and acknowledgments. Each segment sent contains a Sequence Number field in the header. IP routes are constantly changing due to network conditions changing, and sometimes packets arrive in a different order to that in which they are sent. The Sequence Number header allows data sent via TCP to be reassembled in the correct order, guaranteeing in-order delivery of data to the destination process. The Sequence Number is also used to discard duplicate segments that arrive as a result of the system of acknowledgements used to handle re-transmission of lost data. When a segment is sent, a timer is set, and if the sender does not receive an acknowledgment for the segment with that sequence number before the timer elapses, the segment is re-sent.
+
+When a receiver receives a segment, the segment is checked for errors using the Checksum provided in the header. If running the same algorithm on the segment data does not produce the same value as that given in the Checksum field, the segment is dropped. Otherwise, the receiver sends an acknowledgment segment back to the sender using the Acknowledgement Number header field to confirm delivery of a segment with a particular Sequence Number. Since acknowledgements can also get lost over the network or not arrive before the timer elapses, the receiver can end up receiving multiple copies of the same segment. De-duplication is handled by discarding all but one copy of a segment with a given sequence number.
+
+When a protocol sends one message and waits for an acknowledgement before sending another, this is known as a stop-and-wait protocol. However, such a strategy does not make full use of available bandwidth. Instead, TCP makes use of a strategy called pipelining. A given number of messages (a number whose variance is known as the 'window' size) are sent over the network without waiting for acknowledgments. These messages are thus fed into the transmission 'pipeline'. Once the acknowledgments come in (after any necessary re-transmissions), the 'window' is moved on to the next subsequence of messages to be sent. There are various algorithms to manage precisely how pipelining occurs, such as Go-Back-N and Selective Repeat, but the principle remains the same.
+
+Pipelining can give rise to a problem known as Head of Line (HOL) Blocking. A consequence of in-order delivery is that if one segment in a sequence of segments is lost and needs to be re-transmitted, subsequent segments in the sequence must be queued in a buffer until the lost segment has been re-transmitted and processed. The subsequent messages are 'blocked' until the delayed message is processed. This delay adds to the total Queuing Delay, one of the elements of network latency.
+
+In order to facilitate the services it offers, TCP is a connection-oriented protocol that requires an initial 'three-way handshake' to initiate a connection. The connection involves a client-server relationship where the server implements a socket object set to listen for incoming messages on a particular TCP port. The port used by the server is often a conventional port used for the particular application service the server provides; e.g., an HTTP server conventionally uses port `80`. The TCP three-way handshake is initiated by a client sending a SYN ('synchronize') segment to the server. At this point, the server creates a new socket object defined not only by the server's IP address and the service's port number but also by the Source IP Address and Source Port of the message received from the client. These four pieces of information define the socket object used for the remainder of the handshake and the connection thereafter, and are called the 'four-tuple'. The server then sends a SYN-ACK ('synchronize-acknowledgement') segment to the client. The client then sends an ACK ('acknowledgement') segment and at this point application data can begin to be transferred. `SYN` and `ACK` are boolean fields in the TCP Segment header.
+
+The entire handshake process therefore adds a round-trip of latency before actual application data can begin to be exchanged. This is just part of the performance price of the complexity involved in TCP's reliable delivery. TCP does employ strategies to mitigate the performance cost in the form of Flow Control and Congestion Avoidance.
+
+Flow Control is a mechanism to avoid overwhelming the receiver with data. Without flow control, the receiver might not be able to process incoming segments fast enough to prevent buffer overflow, which leads to lost data and increased re-transmissions, slowing things down further. To implement flow control, both client and server can set the Window Size header field to limit the rate at which the other party sends data.
+
+If flow control avoids overwhelming the receiver with data, Congestion Avoidance is designed to avoid overwhelming the network itself. Network congestion is a situation where more data is being transferred over the network than there is capacity to buffer, process, and transmit the data. Intermediate network devices such as routers have finite buffer sizes, limits to how fast they can process data, and a finite bandwidth or bitrate for pushing data onto the wire. Congestion avoidance uses data loss, based on the number of re-transmissions occurring, as a feedback mechanism to detect network congestion, and the transmission window can be lowered accordingly. The transmission window affects how many segments are sent at a time without waiting for acknowledgments. The exact algorithm for determining the transmission window's initial size and how much to lower it based on network congestion will depend on the variant of TCP being used.
+
+Despite these mitigations, TCP's complexity makes it slower than UDP. UDP offers multiplexing and demultiplexing via ports, simple error detection through checksums, but does not offer reliable, in-order delivery. For applications that need fast, low-latency data transfer and are not as concerned with reliable delivery, UDP may be the better choice; audio and video calling, DNS queries, and multiplayer video games are examples where UDP is commonly used. As well as speed, UDP offers flexibility; developers are free to implement only such reliability features as they need on top of the UDP protocol.
+
+
+
 **What are the fundamental elements of reliable protocol?**
-**What is pipe-lining protocols? What are the benefits of it?**
+
+The fundamental elements needed for reliable data transfer are in-order delivery, error detection, re-transmission of lost data, and de-duplication of duplicate messages received as a result of re-transmissions.
+
+**What is pipe-lining in relation to network protocols? What are the benefits of it?**
+
+With reference to reliable data transfer, a 'stop-and-wait' protocol is one where the sender sends a message, starts a timer, and then waits for an acknowledgment to be sent back by the receiver before sending another message. If the timer elapses before an acknowledgement is received, the message is re-sent.
+
+The problem with this system is that the sender spends much of its time waiting for an acknowledgment. Even when no messages go astray, there is still a whole round-trip of latency between each message being sent. This inefficiency is why TCP (Transmission Control Protocol) uses pipelining.
+
+With pipelining, the sender sends a multiple messages one after the other without waiting for acknowledgments. The receiver still sends acknowledgments, and the sender still re-transmits messages that do not receive an acknowledgement before the timer elapses. Thus the system is still reliable. There are different algorithms for implementing pipelining, such as Go-Back-N and Selective Repeat. All approaches use the concept of a 'window' whose size determines how many messages can be sent without waiting for acknowledgments. Once the messages in the window have received acknowledgments, the window is moved on to the next group of messages.
+
+The advantage of pipelining is that it makes efficient use of the available bandwidth; less time is spent simply waiting for acknowledgments and more time can be used for transmitting data.
+
+
+
 **What is a network port?**
-**What is a port number?**
+
+A network port is an integer in the range 0 to 65,535 that uniquely identifies a process running on a host. The first 1024 port numbers are given over to well-known services. For example, an HTTP server conventionally listens on port `80`, while an HTTPS server conventionally listens on `443`.
+
+Since there are usually multiple networked processes running on a host, and a host has a single IP address, we need a means to direct data from a specific process running on one host to a specific process running on another host. The purpose of ports is to enable multiplexing and demultiplexing of multiple data streams over the single channel represented by an IP address. If the IP address is like the street address of a apartment building, the port functions as an apartment number. Or again, if an IP address is like the telephone number of an office, then the port is like the extension to reach a specific person in that office.
+
 **What is a network socket?**
+
+A network socket is an end-point for inter-process communication between networked processes defined by an address-port pair.
+
 **Is TCP connectionless? Why?**
-**How do sockets on the implementation level relate to the idea of protocols being connectionless or connection-oriented?** 
+
+No, TCP is connection-oriented for the purpose of facilitating reliable data transfer. A connection is established because it makes it easier for both parties to maintain state about sequence numbers, acknowledgements sent or received, and so on. For instance, part of the purpose of the TCP handshake is for both parties to synchronize sequence numbers, to coordinate the meaning of the sequence numbers used in relation to the sequence of messages.
+
+**How do sockets on the implementation level relate to the idea of protocols being connectionless or connection-oriented?**
+
+Sockets are implemented in programming languages as objects. A common API is the Berkeley Sockets API. There are differences between the way socket objects are used for a connectionless protocol like UDP and a connection-oriented protcol like TCP.
+
+For UDP, a process creates a socket object defined by the IP address of the host the process is running on combined with a port number. This socket object is then set to `listen()` for incoming messages. These messages can come from any host in any order.
+
+For TCP, a connection-oriented protocol, things work differently. As before, a socket object is created defined by the IP address of the host and a port number. The socket is set to `listen()`. However, when a SYN message is received from another networked process, a new socket object is created for this specific connection, defined not only by the address-port pair of the receiver but also the address-port pair of the sender. These four piece of information are called the four-tuple. This connection socket object is then used for the remainder of the TCP handshake and all subsequent message exchange for the lifetime of the connection. This leaves the original listening socket object free to receive incoming connection requests from other networked processes, each of which is then given its own connection socket object.
+
+
+
 **What are sockets on implementation and on a theoretical level?** 
+
+At the most abstract level, a socket is an communication end-point for inter-process communication. Two common implementations of this abstract concept are the Unix socket and the Internet socket.
+
+A Unix socket is a communication end-point used for inter-process communication between processes running on the same machine. This permits processes running concurrently on the same machine to pass messages and exchange data.
+
+An Internet, like a TCP/IP socket, is a communication end-point used for inter-process communication between networked processes, often though not always running on different hosts. An Internet socket is defined by an IP address/port pair.
+
 **What does it mean that the protocol is connection-oriented?**
+
+A connection-oriented protocol establishes a virtual connection between two communicating parties before any application data is exchanged. Unlike connectionless protocols, connection-oriented protocols maintain a persistent communication channel throughout the entire message exchange.
+
+Connection-oriented protocols facilitate certain services, such as reliable data transfer, but they are heavier in complexity and thus generally less performant. Connection-oriented protocols need some kind of handshake before any data exchange takes place, and generally both parties in the communication need to maintain state about the connection.
+
 **What is a three-way handshake? What is it used for?**
+
+TCP is a connection-oriented protocol. The three-way handshake is a process during which a connection is established.
+
+On the server side, a socket object is created defined by the IP address of the host and a port number; this socket object is set to `listen()` for incoming messages from any source.
+
+TCP segments contain the boolean header fields `SYN` and `ACK` which are used in the three-way handshake. The client sends a `SYN` segment (a segment whose `SYN` field is set to `1`, meaning 'true') to the server. The server then responds with a `SYN`/`ACK` segment (both fields set to `1`) back to the client. The client sends an `ACK` segment to the server, and at this point application data exchange can begin. The handshake establishes a persistent connection, a dedicated communication pathway between the client and server that lasts for the duration of the message exchange, defined by the four-tuple, the IP address/port pair of the server and the IP address/port pair of the client.
+
 **What are the advantages and disadvantages of a Three-way handshake?** 
-**What are multiplexing and demultiplexing?**
-**How does TCP facilitate efficient data transfer?**
-**What is flow control? How does it work and why do we need it?**
-**How TCP prevents from receiver's buffer to get overloaded with data?**
-**What is congestion avoidance?**
-**What is network congestion?**
-**How do transport layer protocols enable communication between processes?**
-**Compare UDP and TCP. What are similarities, what are differences? What are pros and cons of using each one?** 
+
+The advantage of the handshake is that it establishes a connection and facilitates the reliability services offered by TCP. For instance, it allows client and server to synchronize sequence numbers. The disadvantage of the three-way handshake is that it costs an entire round-trip of latency before actual application data can be exchanged.
+
 **What does it mean that network reliability is engineered?**
+
+The underlying network layers beneath the Transport are inherently unreliable. This means that any corrupted packets are simply discarded, and lost packets are not re-transmitted.
+
+Network reliability has therefore been built on top of this inherently unreliable network.
+
+This reliability has been engineered by solving the various problems involved in providing reliability over the unreliable underlying network. This has involved a series of trade-offs, most notably between reliability and performance.
+
 **Give an overview of the Application Layer.** 
+
+The Application layer is the topmost layer of both the OSI model and the TCP/IP model, above the Transport layer. The OSI model defines two layers between the Transport layer and the Application layer (the Session and Presentation layers), but these are rarely of practical use in describing how modern networked applications operate.
+
+The Application layer is still a layer of protocols that address an aspect of communication; it does not represent actual networked applications themselves. For instance, the HTTP protocol is an Application layer protocol, which is made use of by networked applications such as web browsers and web servers.   Application layer protocols are the protocols with which applications most often directly interact, but application may also interact with Transport layer protocols like TCP.
+
+The protocols below the Application layer are mostly concerned with how messages are transferred from one point on the network to another. Application layer protocols are used to give intelligible structure to the messages themselves. Application layer protocols represent syntactical rules for how applications should talk to each other.
+
+Since there are many types of application with very different requirements for how they should communicate, there are many different Application layer protocols. The rules for how an email client should communicate with an email server are very different from the rules for how a web client should communicate with a web server because emails and web pages are very different concerns.
+
 **What is HTML?**
+
+HTML, or HyperText Markup Language, is a markup language used to give uniform structure to web resources. HTML is the language used to create, structure and organize web content, and to give it semantic meaning for the web client. HTML is foundational to almost every website.
+
 **What is a URL and what components does it have?**
+
+A URL, or Uniform Resource Locator, is a string of characters that locates a specific resource. 
+
 **What is a Query string? What it is used for?**
 **What URL encoding is and when it might be used for?**
 **Which characters have to be encoded in the URL? Why?**
