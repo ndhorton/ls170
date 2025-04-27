@@ -623,9 +623,16 @@ HTML, or HyperText Markup Language, is a markup language used to give uniform st
 
 **What is a URL and what components does it have?**
 
-A URL, or Uniform Resource Locator, is a string of characters that locates a specific resource. 
+A URL, or Uniform Resource Locator, is a string of characters that locates a specific resource. A URL is a subset of the more general concept of a Uniform Resource Identifier (URI), a string of characters that identifies a resource. URLs, in addition to identifying a resource, also specify the location of a resource and a means of accessing it. URLs thus provide a system of addressing for web resources.
+
+
+
+
+
+
 
 **What is a Query string? What it is used for?**
+
 **What URL encoding is and when it might be used for?**
 **Which characters have to be encoded in the URL? Why?**
 **What is www in the URL?** 
