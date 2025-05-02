@@ -637,17 +637,139 @@ The final component, also optional, is the query string. The query string begins
 
 **What is a Query string? What it is used for?**
 
+The query string is an optional URL component that can be used to send a small amount of non-sensitive data to the server in the form of query parameters, which are `=`-separated key-value pairs. The query string begins with a `?` and is made up of query parameters, which are separated by `&` if there are more than one.
+
+There are HTTP methods that generally request information or resources from the server, e.g `GET`, and methods that send data to the server in the body of the request in order to change state on the server, e.g. `POST`. In certain circumstances, where there is a small amount of non-sensitive data, such as the terms of a search engine query, a `GET` request is commonly used to send the search terms to the server via the query string of the URL.
+
+Part of the reason for using `GET` in this situation is that even though we are submitting data to the server, the operation is still essentially 'read-only'; even though we are submitting some data, we are simply retrieving information from the server rather than changing state on the server. Furthermore, putting the search terms in the URL works well with browser features like bookmarking. 
+
+Less commonly, the query string can also be used with methods like `POST` in order to send some supplementary data along with the data in the body of the request. However, the information sent in a query string should not be sensitive information; URLs are commonly cached and logged at various points across the network path from client to server, and can generally be assumed to be visible to third-parties; the query string is therefore not suitable for data about the Session, passwords, personal and financial details, etc.
+
+
+
 **What URL encoding is and when it might be used for?**
+
+URLs can contain only a subset of the first 128 ASCII characters. Extended ASCII, control characters and whitespace, and non-ASCII Unicode characters cannot be represented as themselves. There are, in addition, certain reserved characters that have special meaning in a URL (such as `&`) that should only be included in literal form for their URL-specific purpose. All characters other than alphanumerics and a handful of punctuation characters must be ensured to be in encoded rather than in their literal form before they are added to a URL.
+
+URL encoding is the process of substituting alternative patterns of acceptable characters for these proscribed characters. The characters are encoded as a representation of the UTF-8 codepoints that make up the character. Each URL encoding pattern consists of a series of between one and four subpatterns; these subpatterns each consist of the reserved `%` character followed by a two-digit hexadecimal representation of one byte of the UTF-8 representation of the character being encoded. For instance, we cannot permit literal spaces in a URL; the one-byte UTF-8 code for a space character is `20` in hexadecimal, and thus the URL encoding for a space is `%20`.
+
+
+
 **Which characters have to be encoded in the URL? Why?**
+
+Characters must be encoded before being added to a URL under the following conditions: if they do not fall within the subset of the standard ASCII character set; if the character could be interpreted falsely as a metacharacter reserved to a URL special meaning, or could be wrongly interpreted by systems that commonly interact with URLs (for instance, hypertext references in HTML).
+
+The reason for this is that URLs are restricted to the standard ASCII character set. Even some of these will be interpreted by browsers and other systems as having special syntactical significance within a URL. It is thus necessary to represent these characters safely, so that web systems understand them as data points rather than syntax. Any characters that are not within the standard ASCII set will need to be encoded to be represented within a URL at all.
+
+
+
 **What is www in the URL?** 
+
+DNS is a hierarchical system, whereby each dot-separated component in a fully qualified domain name, starting from the right and reading left, represents a narrower, more specific tier of the hierarchy. The component furthest right is the Top Level Domain (TLD), e.g. `com` or `org`. The next component to the left, in combination with the TLD, is generally called the domain name. For example, in `google.com`, `com` is the TLD and `google.com` is the domain name. A component to the left of this is generally called the subdomain, e.g. `www` in `www.google.com`.
+
+`www` is a common subdomain used in the fully qualified domain names of web servers. `www` stands for World Wide Web, and has become the conventional subdomain for websites. This is simply a convention that emerged in the early days of the web, and it is now commonly optional (e.g. `example.com` redirects to `www.example.com` or vice versa.)
+
+
+
 **What is URI?**
+
+The concept of the Uniform Resource Identifier (URI) is to provide a system of identification for resources. A URI is a string of characters that identifies a resource. The precise nature of these resources, and the uses of the identifier, vary according to the 'scheme' of the URI. A scheme is a system of rules governing the provision of identifiers within that scheme. URIs are intended to act as distinct points within an information space.
+
+Uniform Resource Locators, URLs, are a subset of URIs that, in addition to providing an identifier for a resource, also provide a means of locating and accessing a resource. We could see URLs as navigable points within the information space of the World Wide Web.
+
+ 
+
 **What is the difference between scheme and protocol in URL?**
+
+Within a URL, the scheme, e.g. `http`, generally tells a web client which family of protocols can be used to access a resource: in this case, the HTTP family. Which specific protocol, e.g. HTTP/1.1, will be used for a request involving the URL will generally depend on factors beyond the remit of the URL.
+
+The scheme is a component of the URL,  conventionally given in lowercase, followed by the characters `://`.
+
+Protocols and families of protocols are conventionally given in uppercase. The protocol is the actual set of rules and convention used for network communication.
+
+Within the broader concept of a URI, the scheme is a system under which identifiers can be logically assigned, and within URIs the scheme does not necessarily refer to a communication protocol even indirectly.
+
+
+
+
+
 **What is HTTP?**
+
+HTTP, or HyperText Transfer Protocol, is an Application layer protocol that provides uniformity to web resource transfer. HTTP is a set of rules that governs how the messages exchanged between web client and web server are structured.
+
+HTTP adheres to a client-server model in which a web client sends a 'request' to a web server and the server replies with a 'response'. The most common web clients are web browsers like Firefox, Chrome etc. Web servers are hosts running web server software (such as Apache or NGINX) that can handle inbound requests, and the role of the server is to send responses back.
+
+All communications take place within this request-response cycle, where each request from a client receives a response from the server, even if the response is an error message. We can think of the requests and responses as text messages structured according to rules that make the messages intelligible by the other party in the communication. Requests consist of a start line, headers and an optional body. Responses consist of a status line, optional headers, and an optional body.
+
+HTTP is a stateless protocol, meaning that each request-response cycle is independent of all previous and following cycles. The web server does not need to maintain state between requests, and if a request breaks en route to the server, no cleanup is necessary. Although this statelessness helps make the web distributed, resilient, and hard to control, it poses problems for web application developers who wish their applications to provide a stateful experience.
+
+HTTP has certain inherent security risks. Being a text-based protocol, HTTP is susceptible to third-parties intercepting messages and reading sensitive information. There are various mitigations against this, most notably HTTPS, HyperText Transfer Protocol Secure, the secure version of HTTP, which uses the Transport Layer Security (TLS) protocol to encrypt messages.
+
+Along with HyperText Markup Language (HTML), and URLs (Uniform Resource Locators), HTTP is one of the foundational technologies of the World Wide Web. The web is a service accessible via the internet, and was developed in the late-1980s by Tim Berners-Lee and Robert Caillau at CERN. 
+
+
+
 **What is the role of HTTP?**
+
+HyperText Transfer Protocol (HTTP) is an Application layer protocol that gives uniformity to web resource transfer. HTTP is the primary protocol concerned with data transfer between applications on the World Wide Web, and, along with HTML and URLs, HTTP is one of the foundational technologies of the web. HTML provides a uniform structure to web content, URLs provide a uniform means of accessing resources, and HTTP gives uniformity to the transfer of web resources.
+
+We can see HTTP as the standardized set of rules that governs how information is exchanged between web client and web server. HTTP implements the web's client-server model, wherein a web client sends a request to a server and the server sends back a response to the client. This is called the request-response cycle. Requests and responses can be thought of as text messages or strings. A request consists of a start line, headers, and an optional body. A response consists of a status line, optional headers and an optional body.
+
+HTTP is a stateless protocol, meaning that each request-response cycle is independent of any request-response cycles before or afterward. The server does not need to maintain state between cycles, meaning that if a request breaks en route to the server, there is no cleanup required. This statelessness keeps the web resilient, distributed, and hard to control, but it can pose problems for developers building web applications, who need to find ways to simulate statefulness over a stateless protocol.
+
+Since HTTP is text-based, it is inherently vulnerable to messages being intercepted and read, exposing sensitive data like Session IDs. In order to combat this, there is HTTPS, the Secure version of HTTP. HTTPS relies on the Transport Layer Security (TLS) for secure data transfer.
+
+HTTP's role is to govern the structure of the messages exchanged between web client and web server. However, the role of delivering these messages falls to lower level protocols. Traditionally, HTTP requests and responses were sent over TCP/IP, but HTTP/3 uses the QUIC protocol over UDP.
+
+
+
 **Explain the client-server model of web interactions, and the role of HTTP as a protocol within that model**
+
+Web communications follow a client-server model. A web client sends a request to a web server. The web server receives the request, processes it, and sends a response. This is called the request-response cycle. Every request by a client receives a response from the server, even if the response is simply an error message. 
+
+The most common type of web client is a web browser, like Firefox, Chrome, Edge, Safari, etc. A web server is a system whose role is to listen for incoming requests and send appropriate responses. 'Web server' is an overloaded term that can refer both to this computer system and to software running on that system. Furthermore, the server infrastructure of modern websites will tend to have at least three components: the web server, the application server, and the data store.
+
+The web server is the server whose role is to listen for requests and serve content back in responses to those requests. If a request is for a simple file, like a static HTML page, the web server can handle this itself. However, an increasing amount of web content is dynamically generated, and for such requests the web server typically forwards the request to the application server. The application server runs the logic of a web application. The request will be handled by the application server and a response will be generated according to the logic of the web application. This generated content will be returned to the web server, which sends it to the client as an HTTP response. In carrying out its responsibilities, the application server will often consult some kind of persistent data store: a relational database, a key-value store, etc. Regardless of implementation, the role of the data store is to persist state between stateless request-response cycles, to store any data that should not be thrown away after each cycle: user details, online shopping orders, posts on a forum or social media site, etc.
+
+The role of HTTP is that of a standardized set of rules providing uniformity to the structure of requests and responses, so that servers can interpret requests and clients can interpret responses. The responsibility for actually transporting these requests and responses between the client host and server host is delegated to lower level protocols. Previously this was almost invariable TCP and IP, but this has changed with HTTP/3, which uses the QUIC protocol over UDP.
+
+
+
 **What are HTTP requests and responses? What are the components of each?**
+
+An HTTP request is a message that a web client sends to a web server, and an HTTP response is the message that a web server sends to the web client in response to a request. The structure of requests and responses is defined by the HTTP (HyperText Transfer Protocol), essentially a set of rules governing how applications should talk to each other on the web. Since HTTP is a text-based protocol, we can think of both requests and responses as text messages exchanged between server and client.
+
+The most common type of web client is a web browser, such as Firefox, Chrome, etc. A web server is a computer system running software like Apache or NGINX. HTTP implements the web's client-server model. A web client sends an HTTP request to a web server, which processes the request and always sends a response, even if the response is an error message.
+
+The components of an HTTP request are: the start line, headers, and an optional body. The start line, or request line, contains the HTTP Method (such as `GET` or `POST`), the path (or, 'request-URI'), and the HTTP version.
+
+HTTP is the primary protocol for the transfer of web resources. A web client generally sends an HTTP request to request the web server transfer a web resource to the web client. The most common HTTP method used for this is `GET`. Sometimes the web client needs to send data to the web server; the most common HTTP method used in this situation is `POST`. Typically, a request is made based on a URL, whether entered by the user in the browser's address bar, or referenced in a web page's HTML.
+
+The path, or request-URI, contains the URL path component and the query string, if there is one.
+
+Since HTTP/1.1, released in 1997, HTTP requests have required at least one header, the `Host` header, whose value is set to the host part of the URL to which the request is made.
+
+Whether an HTTP request has a body or not depends on the HTTP method. `GET` requests should not have a body, though limited amounts of non-sensitive data can be sent to the server via the query string. `POST` requests, often used for form submissions, generally have a body containing data such as user data entered into a form.
+
+The components of an HTTP response are: the status line, optional headers, and an optional body. The status line consists of a status code and accompanying status text. The status line summarizes whether the request was successful or not, and if not, whether some kind of error has occurred, or whether the client needs to follow a redirect to a different URL. Common headers include the `Content-Type` header, which gives the type of data to expect in the body. The body generally contains the requested resource:  an HTML file, a CSS stylesheet, a JavaScript script, an image, etc.
+
+
+
 **Describe the HTTP request/response cycle.**
-**What is a** s**tate in the context of the 'web'?**
+
+HTTP is a request-response protocol and implements the web's client-server model, wherein a web client sends an HTTP request to a web server, and the web server replies with an HTTP response. This two-part process is known as the request-response cycle.
+
+The request-response cycle begins when a web client, usually a browser, wishes to access a resource on the web server. The client initiates an HTTP request, the server receives and processes the request, and then the server sends an HTTP response to the client.
+
+HTTP is a stateless protocol, which means each request-response cycle is independent from all previous and subsequent request-response cycles. An HTTP request must contain all information that the web server needs to satisfy the request, and the server handles each request without reference to any previous requests sent by the same client.
+
+
+
+
+
+
+
+**What is state in the context of the 'web'?**
 **What is** s**tatelessness?**
 **What is a stateful Web Application?**
 **How can we mimic a stateful application?**
