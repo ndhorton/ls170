@@ -347,3 +347,29 @@
 * TLS Integrity provides a means of checking whether a message has been altered or interfered with in transit
 * TLS Integrity is implemented through the use of a Message Authentication Code (MAC)
 
+
+
+
+
+TLS
+
+Encryption
+
+TLS Handshake
+
+* Client sends `ClientHello` to server, advertising its available ciphers and max TLS version
+* Server sends back a `ServerHello` message containing its TLS certificate and setting the cipher suite and TLS version
+* Client confirms the legitimacy of the certificate via the Chain of Trust. Client sends back a message encrypted with the server's public key beginning the symmetric key exchange. Here, asymmetric key cryptography is used as a secure channel for the exchange of the symmetric key. The precise details of this exchange depend on the algorithm used to generate the session's symmetric key. Once both parties have generated the symmetric key, the server sends a message to the client with the `ChangeCipherSpec` and `Finished` flags set, and the symmetric key is used for encryption during the remainder of the TLS session.
+
+The whole handshake adds up to 2 round-trips of latency before any application data is sent, and that is in addition to the round-trip required for the TCP handshake, which takes place before the TLS handshake begins.
+
+The confirmation of the certificate is actually more complex than that. In addition to sending the certificate as a response to the `ClientHello` message, the server also sends a 'signature' encrypted with the server's private key, along with the original un-encrypted data used for the signature. The client decrypts the signature, using the public key given in the certificate, and compares the data to the decrypted signature; if they match, this means the signature could only have been produced by a party in possession of the server's private key. The certificate is also checked using the Chain of Trust.
+
+
+
+
+
+Authentication
+
+Integrity
+
