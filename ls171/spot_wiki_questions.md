@@ -769,39 +769,297 @@ HTTP is a stateless protocol, which means each request-response cycle is indepen
 
 
 
-**What is state in the context of the 'web'?**
+**What is state in the context of the web?**
+
+In the context of the web, state refers to information that persists between HTTP request/response cycles. This is important to understand because HTTP is a stateless protocol. This means that each request/response cycle is independent of any that came before or after. The server does not need to maintain any state about previous requests. A stateful network protocol retains data from earlier communications in order to process the current communication, while a stateless protocol treats each new communication without reference to any previous communications. This makes the web resilient, since a broken request does not involve any server-side cleanup. However, this poses problems for web application developers attempting to build applications that provide a stateful experience over this stateless protocol.
+
+For instance, when we log into a website, we expect the site to remember us between subsequent requests. How does the server know that we have already provided login details if every request/response cycle is independent?
+
+There are various techniques that developers employ. The concept of a 'session' and a 'session identifier' are of primary importance. A session id is a token that uniquely identifies a particular web client to the server. When a client provides login details, the server issues a session id to the web client in a response, which the client stores. Thereafter, every request that the web client makes includes the session id to identify the client to the server. When preparing the response, the server can recreate the state of the application for that particular client. This technique is a mechanism to provide a stateful experience of a persistent session over a stateless protocol. The actual state regarding any given web client is stored server side, and only the session id is stored client-side.
+
+The session id is usually sent in an 'cookie'. A cookie is a piece of data sent from the server that the web client can then store persistently as a small file. Cookies can serve many purposes, but a common use is as a mechanism for the client to receive and send back a session identifier. The server issues the client a session id in the `Set-Cookie` header of a response. The client receives and stores the data in this field locally. On each subsequent request, the client sends the session id back to the server in the `Cookie` header of the request. The server uses this to identify the client, with the session id serving as a 'key' to the data about that particular client stored on the server. The server then uses that data to recreate the application state for that client.
+
+Another technique used to simulate statefulness is Asynchronous JavaScript And XML (AJAX). AJAX permits developers to make programmatic requests to the server from JavaScript scripts without the browser having to wait for a response. This allows web developers to update parts of a webpage as new information comes in from the server in a way that feels like a stateful application. For example, a social media site might automatically update the number of likes beneath the posts on our timeline without needing to reload the page or disrupt the other functionality of the site. Another example is a Google search, where as we type each character into a search bar, Google can make fresh search suggestions based on each letter we type as we type it.
+
+What is happening here is that a new AJAX request is made by the JavaScript running in our browser for each new letter we type into the Google search bar. These AJAX requests do not disrupt our ability to continue typing. Each request is made and the JavaScript on the page continues to run without waiting for a response. When the response comes in, a callback function handles the response, triggering some logic to replace the search suggestions below the search bar with new ones.
+
+There are other techniques that web developers can employ to simulate statefulness, and often these techniques are combined.
+
 **What is** s**tatelessness?**
+
+In the context of network protocols, a stateless protocol is one where each new request must be processed without reference to any previous request/response cycles. A stateful protocol would be one where the server must maintain state about previous request/response cycles in order to process requests properly.
+
+
+
 **What is a stateful Web Application?**
+
+A stateful web application is a web application that can 'remember' information about a particular web client (like, for instance, that a web browser's user has already entered their login details) between request/response cycles. This is significant because HTTP is a stateless protocol.
+
+
+
 **How can we mimic a stateful application?**
-**What is the difference between stateful and stateless applications?**
-**What does it mean that HTTP is a 'stateless protocol?** 
-**Why HTTP makes it difficult to build a stateful application?**
+
+Go straight into Session (ID), Cookies, AJAX
+
+
+
 **How the idea that HTTP is a stateless protocol makes the web difficult to secure?** 
-**What is a `GET` request and how does it work?** 
+
+HTTP's statelessness has security implications for developers. Since HTTP does not maintain state between requests, developers need to employ a variety of techniques to create a stateful experience over a stateless protocol, and these techniques bring with them certain security vulnerabilities that developers must account for.
+
+A common technique to simulate statefulness over HTTP is to use a session identifier. The server issues the client a session id token and the client then sends the session id back with every request, allowing the server to identify the client and re-create the application state for that particular client before constructing a response. This introduces Session Hijacking vulnerabilities.
+
+HTTP requests and responses are essentially text messages. In Session Hijacking, an attacker obtains a given client's session id (whether through packet sniffing or some other interception technique) and then can use the session id to pose as the client. This means the attacker can effectively log into a website as another user without even needing to know their username or password.
+
+There are several techniques to mitigate against Session Hijacking. An important basic security consideration is how long a session id should remain valid for after it is issued to the client. If the session id has no expiration date, the attacker has infinite time to pose as the user. If we shorten the valid time to half an hour, we have already greatly reduced the attacker's window of opportunity.
+
+A related strategy is to invalidate all previous session ids when issuing a new session id. We can then re-prompt a user for their password whenever they attempt to perform a sensitive operation, such as paying for their order or deleting their account, invalidate the old session id and issue a new session id. This means the attacker cannot perform a sensitive operation using the session id they have acquired unless they also know the password. This also means that the session id will change more often, limiting the attacker's window of opportunity even more.
+
+Since HTTP's statelessness causes sensitive session information to be sent to the server with every request, the most effective way to prevent theft of this information is to use HTTPS, which encrypts the requests and responses using TLS. This way, if a packet is intercepted by a malicious party, the data will be encrypted and useless to them.
+
+
+
+
+
+**What is a `GET` request and how does it work?**
+
+`GET` is one of the fundamental HTTP request methods. The primary purpose of a `GET` request is to retrieve resources from a server. When you type a URL into the address bar of a browser or click on a link in a web page, you are generally making a `GET` request.
+
+A `GET` request begins with the `GET` HTTP method in the start line and should have no body. This is because `GET` requests should only retrieve content without changing any state on the server. They are essentially 'read-only'. If any data needs to be passed to the server during a `GET` request, it must be passed as query parameters. Since query parameters are visible in the URL, any data passed in this fashion should not be sensitive.
+
+The start line also includes the path to the resource (or request-URI) including any query string, and headers, including the `Host` header from HTTP/1.1 onward.
+
+The request is sent, the server receives and processes it and sends a response, generally including the requested resource in the body of the response.
+
+
+
 **How is `GET` request initiated?**
+
+Since `GET` is the method generally used to retrieve web resources, a `GET` request is the most common type of request; a URL that we enter into  the address bar of a browser generates a `GET` request, and clicking a link in a web page also sends a `GET` request.
+
 **What is the HTTP response body and what do we use it for?**
+
+The body of a response contains the significant data sent back from the web server to the requesting web client. Most often, if a response contains a body, the body contains a requested web resource. This resource might be an HTML, JavaScript or CSS file, an image, or even a large file that has been requested for download.
+
+Several headers include metadata about the body, including its length and encoding.
+
 **What are the obligatory components of HTTP requests?** 
+
+The obligatory components of HTTP requests are the start line (or request line) which contains the HTTP request method, the target or path to the resource (the request-URI), and from HTTP/1.0 onward also the version of HTTP being used.
+
+From HTTP/1.1 onward, there should be at least one header, the `Host`  header, which contains the domain name of the server.
+
+All other headers and the body are optional, and will depend partly on the HTTP method used. 
+
 **What are the obligatory components of HTTP response?**
+
+An HTTP response must include a status line, consisting of the HTTP version, the status code representing the result of the request, and the accompanying status text. All headers and the body are optional.
+
+The status code is a three-digit number representing the outcome of the request. Status codes in the 200s generally indicate success; codes in the 300s generally indicate redirection; the 400s generally indicate a client-side error of some kind; and codes in the 500s generally indicate a server-side error that the client can do nothing about.
+
+HTTP/2 reorganized the status text out of the status line and into a header, but the same basic information still needs to be sent.
+
+
+
 **Which HTTP method would you use to send sensitive information to a server? Why?**
+
+The `POST` method is the most common HTTP request method used to send sensitive information to a server. The data we wish to send in a `POST` request is sent in the body of the request. The reason to use `POST` rather than `GET` is that `POST` requests are expected to contain a body and `GET` requests are not. We can send data in query parameters when making a `GET` request but not only is the query string limited by size, but it is also visible in the URL. For certain operations, like a search engine query, it is desirable to have the search terms visible in the URL for bookmarking purposes, etc. However, public visibility is extremely bad when the data is sensitive in any way. Since the URL is still publicly visible even when we are using a secure HTTPS connection, this means that sensitive data that needs to be encrypted cannot be sent in the query string.
+
+Sending data in the body of a `POST` request is not inherently secure, but it can be made secure through the use of HTTPS in a way that query parameters cannot be.
+
+
+
+
+
 **Compare `GET` and `POST` methods.**
+
+`GET` and `POST` are HTTP request methods. In general, a `GET` request is used to retrieve a web resource, performing an essentially 'read-only' operation. A `POST` request is generally used when we want to send data to the server with the effect of changing state on the server.
+
+`GET` is used primarily to retrieve web resources, and should not be used to change state on the server. Whenever we enter a URL in a browser address bar or click a link, we are generally making a `GET` request. The server receives the request, processes it, and, if successful, the response typically contains the resource we have requested in the response body.
+
+If we use `GET` to send data to the server at all, it should only be for the purposes of retrieving a resource. A `GET` request can be used to send a limited amount of non-sensitive data to the server via query parameters. When we search for something using Google, our search terms are generally sent in the query string of the URL in a `GET` request. Since the search terms are in the URL, this means we can bookmark a search. Since URLs are open to bookmarking, and caching and logging both client- and server-side, this approach is unsuitable for sensitive data like passwords. There are also restrictions on URL length, which makes `GET` unsuitable for sending larger amounts of data to the server. 
+
+`POST` is used when we wish to send data to the server with the intent of changing state on the server. `POST` is typically used when we submit a form, especially if the form might contain sensitive data. `POST` requests send data in the body of the request, which can be much greater in size than a URL. Additionally, when using HTTPS, the body of the request can be encrypted, making `POST` suitable for sensitive data. However, `POST` is not inherently secure without HTTPS.
+
+
+
 **Describe how would you send a `GET` request to a server and what would happen at each stage.**
+
+We send a `GET` request whenever we type a URL into a browser's address bar, and most links issue `GET` requests.
+
+If we enter a URL in our browser's address bar, the browser will create and send a `GET` request. A `GET` request will contain at least a request line (or start line), and since `HTTP/1.1`, a `Host` header. The request line contains the HTTP method `GET`, the path to the resource including the query string if any, and the HTTP version we are using. The `Host` header contains the domain name of the server. `GET` requests do not include a body.
+
+For the purposes of actually sending the request over the internet, our browser will make a DNS query for the domain name of the server in order to obtain the server's IP address. The Domain Name System (DNS) is a hierarchical, distributed database that maps domain names to IP addresses.
+
+Our web client, the browser, will establish a TCP connection with the server through the TCP handshake. If we are using HTTPS, the TLS handshake is performed immediately afterward, and the request is first encapsulated and encrypted in a TLS record. This is then encapsulated as the data payload of a TCP segment, which in turn is encapsulated in an IP packet.
+
+The IP packet is sent to our default gateway and routed across the internet to the server's router. When the server receives the packet, it de-encapsulates and decrypts the request and processes it. The server prepares its response, and sends it back through the same layers of data encapsulation.
+
+When the browser receives the response, and assuming the request was successful, the browser interprets the response and displays the requested resource.
+
+
+
+
+
+
+
 **Describe how would you send `POST` requests to a server and what is happening at each stage.**
-**What is a status code? What are some of the status codes types? What is the purpose of status codes?** 
+
+`POST` requests are used to send data to a web server with the intent of changing state on the server. Unlike a `GET` request, a `POST` request is thus not intended to be 'read-only'. A `POST` request is usually created by our browser when we submit a form on a web page, especially if the form data may contain sensitive information.
+
+When we submit a form on a web page, the browser will create a `POST` request. Typically a `POST` request includes a request line (start line), a `Host`  header (since HTTP/1.1), and body containing the data being sent to the server. Typically, there will also be a `Content-Type` header that indicates how the body should be interpreted. When submitting a form, this value is typically set to `application/x-www-form-urlencoded`, though not always. The request line contains the HTTP method name `POST`, the path to the resource (request-URI), and the version of HTTP we are using. The `Host` header contains the domain name of the web server. The body contains the parameters from the form.
+
+In order to send the request across the internet, our browser will send a DNS query to obtain the server's IP address. The Domain Name System (DNS) is a hierarchical, distributed database that maps domain names to IP addresses.
+
+Our client, the browser, opens a TCP connection to the server via the TCP handshake. Assuming we are using HTTPS, the TLS handshake follows immediately after. The `POST` request is encapsulated and encrypted in a TLS record, which in turn is encapsulated as the data payload of a TCP segment. The TCP segment is encapsulated in an IP packet, and is sent via a Data Link protocol PDU to our default gateway, which begins routing the packet across the internet to the server's router.
+
+The server's router sends the packet to the server, which de-encapsulates and decrypts the `POST` request. The server processes the `POST` request, which may include updating state in the data store, before preparing a response. The response is sent back across the internet via the same layers of data encapsulation.
+
+Our browser de-encapsulates and processes the response. Commonly, the response to a `POST` request will be a redirect to a new URL given in the `Location` header, to which the browser immediately issues a `GET` request.
+
+
+
+**What is a status code? What are some of the status codes types? What is the purpose of status codes?**
+
+Every HTTP response contains a status code given in the status line. The status code has an accompanying string called the status text. For instance, status code `200` is accompanied by the text `OK`. 
+
+Status codes in the 200s signify that the request was successful and the browser need not send another request. Status codes in the 300s signify redirection to a different location given in a `Location` response header. Status codes in the 400s signify client errors, such as requesting a resource that does not exist. Status codes in the 500s signify server-side errors, which the client can generally do nothing about.
+
+Common status codes include `200 OK`, signifying a successful request for a resource; `302 Found`, signifying redirection to a resource that has moved temporarily; `404 Not Found`, signifying that the client requested a resource that cannot be found; and `500 Internal Server Error`, signifying that the server has encountered a non-specific error.
+
+The status code gives information to the client on how to interpret the response, including its headers.
+
+
+
 **Imagine you are using an HTTP tool and you received a status code `302`. What does this status code mean and what happens if you receive a status code like that?** 
+
+The status code and status text `302 Found` signify that a resource has temporarily moved to a new location. Typically, the new location is given in a `Location` header. A browser will automatically send a `GET` request based on the URL given in the `Location` header, but an HTTP tool will not necessarily do so.
+
+`302 Found` is often used for redirects in different situations, such as the response to a `POST` request generated by submitting a form.
+
+
+
 **How do modern web applications 'remember' state for each client?**
+
+Modern web servers hosting applications can generally be divided into at least three parts. There is the web server itself, which handles incoming requests and can serve static files such as images. For requests involving application logic, like dynamically generated web pages, the web server hands the request over to the application server. The application server contains the actual business logic for the application. When the application needs to store or retrieve state, it interacts with the data store, which might typically be a relational database, though other forms of data storage are also used.
+
+Application state is thus typically stored server-side in the data store. However, since HTTP is a stateless protocol, the server needs a way to be able to identify a client in order to re-create the application state for that particular client. In a stateless protocol, each request/response cycle is independent from the last, and the server does not maintain any state about an ongoing communication with a particular client. Instead, the server must be able to completely interpret a request without reference to any previous requests or responses.
+
+This means developers need techniques in order to build a stateful experience over this stateless protocol. The most common techniques involve the concepts of session and cookies.
+
+To create the sense of a session, the server issues each client a session identifier, a unique token that identifies that specific client. The session id is typically sent to the client in the response header `Set-Cookie`. A cookie is a piece of data sent by the server to the client to be stored locally client-side. A session cookie can thus be stored by the client and associated with a particular server, and with every request to that server the session id will be sent in the `Cookie` header.
+
+When it receives a request, the server then uses the session id as a key to access the client's data from the server-side data store. The server can then recreate the application state for that client, and construct a response accordingly.
+
+
+
 **What role does AJAX play in displaying dynamic content in web applications?**
-**Describe some of the security threats and what can be done to minimize them?**
-**What is the Same Origin Policy? How it is used to mitigate certain security threats?**  
+
+Asynchronous JavaScript and XML (AJAX) allows requests to be made programatically and asynchronously. This means that a JavaScript script running in the browser can make a request without blocking execution; the JavaScript on that page can continue to run and the user will have the sense of the page continuing to be responsive. When a request is received, a callback function can handle it, updating only a small part of the page through DOM manipulation, using the new data received in the response. This makes web pages feel dynamic and enables many of the features we now take for granted. For instance, when we start typing in a Google search bar, each letter we type triggers a new group of search suggestions to be displayed below the bar. What is happening here is that each new letter causes an AJAX request to be sent to the server; since the request is asynchronous, this doesn't cause the page to hang and wait for the response -- we can keep typing. The callback logic handles redrawing only the section of the page where the search suggestions are displayed.
+
+This asynchronous behavior is in contrast to the early days of the web, where making a request would cause early web browsers to pause and wait for the response before having to re-render the entire page.
+
+In place of XML, AJAX can also be used with JSON and other formats. To provide the asynchronous behavior that enables partial page updates, AJAX makes use of APIs such as `XMLHttpRequest` and `fetch()`.
+
+
+
+**Describe some web security threats and what can be done to minimize them?**
+
+Session hijacking is a type of attack where the attacker gets hold of a web client's session identifier for a particular website, through techniques such as packet sniffing. This allows the attacker to pose as the hijacked client without needing their username or password.
+
+There are a few key ways for web developers to mitigate against this kind of attack. First, we can set an expiration time for each session id. This limits the attack window from an infinite to a finite time window. Secondly, we can invalidate any existing session id when a new session id is issued; this works in tandem with requiring a user to re-enter their login details when performing any kind of sensitive operation such as deleting their account or making a purchase, or when accessing a more sensitive part of the website such as their payment details. This technique greatly limits what an attacker can do even if they get hold of a session id, since any dangerous action will require them to also know the user's login details.
+
+However, the most effective way to guard against session hijacking is to use HTTPS across the website, so that if an attacker were to intercept a packet containing the session id, the entire message would be encrypted and useless to them. HTTPS is the secure version of HTTP, which uses the Transport Layer Security protocol (TLS) in order to provide encryption, authentication, and integrity services.
+
+Cross-Site Scripting (XSS) is a common form of injection attack, whereby an attacker takes advantage of a form on a webpage whose input will be displayed on the page, such as a form for comments. In an XSS attack, the attacker enters HTML and JavaScript into the form, and when the page displays their input, the code is interpreted rather than rendered as text by the browsers of subsequent visitors to the page. This code bypasses the Same Origin Policy, since the script has been received from the website they are visiting, and can execute with this level of privilege to do a variety of malicious things, including stealing session data for session hijacking attacks.
+
+There are two main ways of dealing with the possibility of XSS attacks. The first is to sanitize user input to remove problematic or all HTML and JavaScript code. The second method is to escape all HTML and JavaScript significant characters that could be used in such an attack when outputting the user input. This ensures that any HTML and JavaScript is rendered as text rather than interpreted as code by the browser.
+
+To do this, we can make use of HTML Entities. An HTML entity is a string of characters used to escape a HTML reserved character. By escaping reserved characters in user input, we can ensure that any code submitted is rendered as text rather than executed by the browser.
+
+**What is the Same Origin Policy? How it is used to mitigate certain security threats?**
+
+The Same Origin Policy is a browser-enforced security measure that permits unrestricted interaction between resources from the same origin, but restricts certain interactions between resources from different origins. An origin is the combination of URL scheme, domain name, and port number, e.g. `https` plus `www.gooogle.com` plus port `443` forms an origin.
+
+The same origin policy allows many cross-origin interactions, such as links, embeddings, and form submissions. However, the same-origin policy restricts programmatic requests made to another origin using APIs such as `XMLHttpRequest` and `fetch()`.
+
+The same-origin policy prevents many security issues involving data theft, such as session hijacking. The policy prevents scripts received from one site making requests on a client's behalf to other sites using the client's session cookies for those sites.
 
 **What is CORS?**
 
-**What determines whether a request should use `GET` or `POST` as its HTTP method?**
+While the Same-Origin Policy is effective in setting security boundaries between websites, it can interfere with legitimate web development. There are legitimate reasons to make programmatic cross-origin requests. Cross-Origin Resource Sharing (CORS) exists to deal with these issues caused by the same-origin policy.
+
+When a cross-origin request restricted by the same-origin policy is made, the browser will add an `Origin` header to the request containing the source origin. If the server that receives the request has a CORS policy in place to accept requests from that origin, it adds an appropriate `Access-Control-Allow-Origin` header to the response, and the browser will grant the requesting script access to the response. If the response from the server does not contain this header, or the header denies access, then the browser will prevent the response from being processed.
+
+
+
+**What determines whether a request should use `GET` or `POST` as its HTTP method?
+
+The `GET` HTTP request method is used to retrieve resources, and should be a 'read-only' operation. The `POST` method is generally used to send data to the server with the intent of changing state on the server.
+
+A web browser generally issues a `GET` request for most hyperlinks and for URLs entered into the address bar, as well as to retrieve resources such as the images displayed in a web page. Browsers will generally issue `POST` requests for operations involving sending data to the server, such as submitting a form.
+
+An exception to this latter would be for certain kinds of data that are suitable to be sent in the query string of a `GET` request, such as when we enter search terms in the search bar of a search engine like Google. Our search terms are added to the query string of a URL accessed with a `GET` request, and this has useful benefits such as the ability to bookmark a search. Since search terms are generally limited in size and non-sensitive, they are can be sent as query parameters.
+
  **What is the relationship between a scheme and a protocol in the context of a URL?**
+
+In the context of URLs, the scheme tells the browser what family of protocols to use when making a request. For instance, `http` is a scheme that tells us to use the HTTP family of protocols, without specifying specific HTTP version to use (e.g. HTTP/1.1).
+
+However, in the wider context of URIs, the scheme does not necessarily relate to network protocols at all, and here the scheme should be understood as a scheme for identifying a particular type of resource.
+
  **In what ways can we pass information to the application server via the URL?**
- **How insecure HTTP message transfer looks like?**
- **What services does HTTP provide and what are the particular problems each of them aims to address?**
+
+We can pass information to the application server in the path section of the URL and the query string.
+
+In the early days of the web, the path would generally be an actual Unix-style pathname identifying an actual file in the server's filesystem. Now that web content is increasingly dynamic, the path is just as likely to be a string that is meaningful to the application logic running on the application server rather than referencing a real file.
+
+The web server, a piece of software like NGINX or Apache, can handle requests for static files. However, when a request is received for dynamic content, the web server hands the request over to the application server, where the business logic of a modern web app resides. The application server treats the path as a 'route', essentially an identifier for a particular branch of application logic. Exactly how the application should respond to a given route is determined entirely by the logic of the application.
+
+Another way to pass information via the URL to the application server is the query string, where a certain amount of data (limited by the limit on URL size) can be sent. This data should not be sensitive data like a password, since URLs are cached and logged both client- and server-side.
+
+
+ **What services does TLS provide and what are the particular problems each of them aims to address?**
+
+The Transport Layer Security protocol provides secure message exchange by combining three services: encryption, authentication, and integrity.
+
+HTTP requests and responses are essentially text messages. If a packet is intercepted via packet sniffing, the attacker can potentially gain access to sensitive data such as session information. This can lead to session hijacking attacks.
+
+TLS encryption aims to foil these kind of data-stealing attacks by encoding messages in such a way that they can only be decoded by a party with an authorized means of doing so. For the exchange of application messages, such as HTTP requests and responses, TLS uses symmetric key encryption, because it is more efficient than asymmetric key encryption. However, in order to agree on a symmetric key to use for the bulk of the message exchange, both parties must use asymmetric key encryption in order to keep the symmetric key itself confidential.
+
+The secure exchange of a symmetric key happens during the establishment of a TLS connection, which is called the TLS handshake. During the handshake, the client uses the server's public key to encrypt the data it sends to the server, out of which the symmetric key is then generated by both parties. This public key is contained in the server's TLS certificate, which it sends to the client. During the TLS handshake, the parties also agree on a 'cipher suite', the set of cryptographic algorithms that will be used for the connection.
+
+TLS authentication is designed to ensure that the party we are communicating with actually is who they say they are. Encryption would not be very useful if the party we are communicating with is a malicious party posing as a trusted organization.
+
+To authenticate that the server is what it claims to be, the client follows what is called the 'chain of trust'. During the handshake, the server sends its TLS certificate, which contains its public key, and a 'signature', which is some data particular to that connection that has been encrypted with the server's private key. The client decrypts the server's signature with the server's public key and compares the result to the original data; if they match, this demonstrates that the signature was created with the server's private key, which only the server should have access to.
+
+However, since digital certificates can be easily faked, we need to verify the TLS certificate itself. TLS certificates are issued by Certificate Authorities. Root CAs issue certificates to Intermediate CAs, which in turn issue certificates to actual websites. We need to verify that the server's certificate was actually issued by an Intermediate CA.
+
+To do this, we again use signatures. The TLS certificate is signed by the Intermediate CA, with the signature based on information specific to that certificate. The web client requests the Intermediate CA's own certificate, which contains its public key, and decrypts the signature on the TLS certificate using the CAs key. If the result matches the data in the certificate, then the certificate could only have been created by a party in possession of the Intermediate CAs private key.
+
+The Intermediate CAs certificate is signed by the Root CA that issued it. To verify this, the client obtains the Root CAs public key from the Root CAs certificate and decrypts the signature in the Intermediate CAs TLS certificate. If the result matches the data in the certificate, then the certificate must have been issued by the Root CA.
+
+The Root CAs certificate is self-signed, meaning that the chain of trust stops here. There are only a very few Root CAs in the world, and a typical web browser maintains a list of them. Root CAs are organizations that have built up a reputation of trust over many years, and while the system does depend on trust and is not infallible, we can be reasonably confident that the Root CA keeps its private key private and does not issue certificates to parties that should not be granted one.
+
+TLS integrity provides a check on whether a given message during a connection has been interfered with or faked. In order to do this, the sender produces a 'digest' of the data in the data payload of a TLS PDU (a TLS 'record') using a cryptographic hashing algorithm and special hash value, agreed on during the TLS handshake when the cipher suite was decided. This is sent in the Message Authentication Code (MAC) trailer of the TLS record. When the client receives the TLS record, it creates its own digest using the same algorithm and hash value, and compares this to the MAC field. If they match, the client is assured of the integrity of the data payload.
+
  **What is TLS Handshake?**
+
+The TLS Handshake is the process by which a secure TLS connection is established. The TLS handshake comes directly after the TCP handshake and adds up to two additional round-trips of latency.
+
+The TLS Handshake begins with a `ClientHello` message sent from client to server, and lets the server know which versions of TLS and which cryptographic algorithms it can use. The server responds with a `ServerHello` message and sends its TLS certificate. The server also sets the 'cipher suite', the set of cryptographic algorithms that will be used for the remainder of the connection.
+
+The client then uses the asymmetric public key contained in the server's certificate to securely exchange a symmetric key with the server that will be used to encrypt actual application data. Symmetric key cryptography requires both parties in an exchange to be in possession of a single key; this is difficult when the two parties are strangers communicating over the internet, an inherently insecure channel. Asymmetric key cryptography, where a public key is used to encrypt and a secret, private key is used to decrypt, allows parties to communicate securely without needing to agree on a single key beforehand. The precise details of the TLS symmetric key exchange process depend on the algorithms chosen for the cipher suite. Essentially, however, asymmetric public key cryptography is used to create a secure channel over which a symmetric key can be exchanged.
+
+Once the symmetric key has been exchanged, the server and client exchange messages containing the `ChangeCipherSpec` and `Finished` markers, signaling that the handshake is at an end and application data can now be exchanged using the symmetric key for encryption.
+
+The TLS handshake essentially serves to agree on a version of TLS to use, to agree on a cipher suite, and to exchange a symmetric key. Additionally, the server's TLS certificate is used by the client to authenticate the server's identity through the chain of trust.
+
+
+
  **What is symmetric key encryption? What is it used for?**
+
+
+
  **What is asymmetric key encryption? What is it used for?**
  **Describe SSL/TLS encryption process.**
  **Describe the pros and cons of TLS Handshake**

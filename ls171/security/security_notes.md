@@ -371,5 +371,35 @@ The confirmation of the certificate is actually more complex than that. In addit
 
 Authentication
 
+So essentially the 'signature' mechanism is used for each link in the Chain of Trust.
+
+During the TLS handshake, in its response to the `ClientHello` message, the server will send back its TLS certificate. This is partly so that the process by which the client and server agree on a symmetric key can be conducted using asymmetric key cryptography to keep the symmetric key secret from third parties. Additionally, however, the TLS certificate provides a means of authenticating that the server we are connecting to actually has legitimate ownership of the domain we are attempting to access. This can prevent Man in the Middle attacks, whereby the attacker interposes their own malicious server in place of the server we are trying to access, as though it were the rightful owner of that domain name.
+
+Along with the TLS certificate, the server sends a 'signature', which consists of data that is particular to the current communication that has been encrypted using the server's private key. The server also sends the unencrypted data. The client then decrypts the signature using the server's public key contained in the TLS certificate. If the decrypted signature matches the data, then the server must have access to the private key counterpart of the public key contained in the certificate.
+
+However, so far, this does not eliminate the possibility that the server has faked a certificate claiming to be someone they aren't. In order to authenticate the identity of the server, the web client must follow what is called the 'Chain of Trust'.
+
+TLS Certificates are issued by Certificate Authorities. The highest authorities are called Root CAs. Root CAs are a small number of organizations that for historical reasons are generally trusted throughout the IT space, a complete list of which can be maintained by all web browsers (and other web clients). Below Root CAs are Intermediate CAs. Root CAs certify the Intermediate CAs, and the Intermediate CAs are responsible for certifying the web servers of ordinary organizations and companies. This creates a hierarchical structure of authentication.
+
+When a web browser receives a server's TLS certificate, it needs to verify the authenticity of the certificate. This is again done by means of signatures. A TLS certificate contains a signature from an Intermediate CA. This signature is data contained in that specific certificate that has been encrypted with the Intermediate CAs private key. The web client decrypts the signature using the Intermediate CA's public key, and if the decrypted data matches the data in the certificate, this proves the certificate was issued by the Intermediate CA.
+
+The same verification by signature is used to prove that the Root CA issued the Intermediate CA's TLS certificate. Once the web browser reaches the Root CA, the Chain of Trust stops; the Root CAs certificate is 'self-signed'. The web client simply consults its own list of Root CAs and their public keys to determine whether the Root CAs certificate is genuinely self-signed with the Root CA's private key. This means that the system fundamentally depends on trusting Root Certificate Authorities. Root CAs keep their private key extremely secret and have built up trust over decades of operation. This means the system is not infallible but ultimately depends on trusting a small number of significant parties.
+
+
+
 Integrity
+
+TLS provides an additional layer of security that checks whether any given message has been tampered with or faked. The TLS PDU, called a TLS Record, contains a Message Authentication Code (MAC) field in its trailer, which is used to provide this message integrity check.
+
+The sender creates what is called a 'digest' of the data payload. The digest is produced by running a cryptographic hashing algorithm (agreed in the cipher suite) on the data payload, with a pre-agreed hash value as another input. The digest produced by the algorithm is sent in the MAC field of the TLS Record.
+
+The receiver of the TLS record creates its own digest by running the same hashing algorithm with the pre-agreed hash value on the data payload. The receiver then compares its digest with the digest contained in the MAC field. If they match, this confirms the integrity of the message.
+
+
+
+CORS
+
+When some JavaScript downloaded from Origin A makes a programmatic HTTP request using an API such as `XmlHttpRequest` or `fetch` to a resource at Origin B, the web browser implements CORS by adding an `Origin` header to the request. In order to obtain the resource, the server must have CORS policies in place to allow requests from Origin A. If this is the case, the server adds an appropriate `Access-Control-Allow-Origin` header with its response. When the browser receives the response it checks for this header. If the header is missing, or the value signifies that access is denied, the browser will not process the response. If the header is present and grants access, the response is processed like any other response.
+
+CORS is an important guard against **session hijacking**.
 
