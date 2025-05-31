@@ -429,9 +429,9 @@ An IP address is a hierarchical, logical address that is a feature of the Intern
 
 There are two versions of IP in use. The older and still more dominant, IPv4, has 32 bit addresses, while IPv6 has 128-bit addresses. Since 32 bits only provides around 4.3 billion IPv4 addresses, workarounds are already needed to serve the existing number of Internet-connected devices. IPv6's 128 bit address space provides a truly vast number of unique addresses, more than enough for the foreseeable future.
 
-In human readable form, IPv4 addresses are divided into four groups of eight bits, or octets. Each dot-separated octet is represented as a decimal number between 0 and 255. E.g. `106.128.1.233`
+In human readable form, IPv4 addresses are divided into four groups of eight bits, or octets. Each dot-separated octet is represented as a decimal number between 0 and 255. E.g. `106.128.23.233`
 
-MAC addressing, the form of address used by the layer below the Network layer, the Data Link layer, is unsuitable for inter-network addressing since MAC addresses are flat (mostly arbitrary) and burned-in. IP addresses, by contrast, are hierarchical and logical. The IP address space is hierarchically divided into subnetworks of decreasing size (in a scheme known as subnetting). IP addresses are logical in that they can be assigned and revoked as devices are connected to and disconnected from any given subnetwork within the IP network. This means that an IP address gives the current logical position of a host and the subnetwork it is connected to within the overall IP network, and this is why IP addressing is suitable for routing between networks. Routers can route traffic from one network to another, from one router to another, in a series of hops across the Internet, with each hop bringing the data closer to its destination. Each router only needs to maintain records in its routing table for the proximate routers in the IP network hierarchy, whereas with flat MAC addresses, each router would need to maintain the address of every machine on the Internet in order to forward traffic.
+MAC addressing, the form of address used by the layer below the Network layer, the Data Link layer, is unsuitable for inter-network addressing since MAC addresses are flat (mostly arbitrary and unstructured) and burned-in. IP addresses, by contrast, are hierarchical and logical. The IP address space is hierarchically divided into subnetworks of decreasing size (in a scheme known as subnetting). IP addresses are logical in that they can be assigned and revoked as devices are connected to and disconnected from any given subnetwork within the IP network. This means that an IP address gives the current logical position of a host and the subnetwork it is connected to within the overall IP network, and this is why IP addressing is suitable for routing between networks. Routers can route traffic from one network to another, from one router to another, in a series of hops across the Internet, with each hop bringing the data closer to its destination. Each router only needs to maintain records in its routing table for the proximate routers in the IP network hierarchy, whereas with flat MAC addresses, each router would need to maintain the address of every machine on the Internet in order to forward traffic.
 
 
 
@@ -1058,19 +1058,88 @@ The TLS handshake essentially serves to agree on a version of TLS to use, to agr
 
  **What is symmetric key encryption? What is it used for?**
 
+Symmetric key encryption means that both parties in the secure communication must have access to the same key, a string of characters which is used with a cryptographic algorithm (or 'cipher') to encrypt and decrypt messages in both directions.
 
+Symmetric key cryptography poses problems for communication over the Internet; the Internet is an inherently insecure channel and therefore we cannot simply exchange a symmetric key with another party without using some other form of encryption.
+
+Transport Layer Security (TLS), the most common Internet security protocol, uses asymmetric key cryptography during the initial handshake in order to create a secure channel for both parties to agree on a symmetric key. After this initial handshake, symmetric key cryptography is then used for the bulk of the message exchange, since, in general, symmetric key ciphers are faster and more efficient than asymmetric key ciphers.
 
  **What is asymmetric key encryption? What is it used for?**
+
+Unlike symmetric key cryptography, where both parties use the same cryptographic key for encryption and decryption of messages in both directions, asymmetric key cryptography makes use of the concept of a public key and a private key. Each party has a public key, which is freely distributed, and a private key, which is kept secret. If Bob wants to send a message to Alice, he encrypts it with Alice's public key. Alice decrypts the message using her private key, and if she wishes to send a reply, she encrypts it with Bob's public key. Bob then decrypts the response using his private key.
+
+Asymmetric key cryptography has the huge advantage that secure message exchange can begin immediately, without needing an existing secure channel over which to exchange a symmetric key. However, asymmetric key cryptographic algorithms are slower and less efficient than symmetric key algorithms.
+
+This is why, in Transport Layer Security (TLS), the most common Internet security protocol, asymmetric key cryptography is used for the secure exchange of a symmetric key during the initial TLS handshake process. This means both parties can agree on a symmetric key using the security of asymmetric key cryptography.
+
+Another common use of asymmetric key cryptography is for authentication purposes, whereby a party creates a 'signature'. A signature is a significant piece of data that is encrypted using the *private* key. Something encrypted with the private key can be read by anyone, since the public key is publicly available, but the purpose here is to demonstrate *ownership* of the private key. If we decrypt the signature using the party's public key and the result matches the significant data, this demonstrates that the signature could only have been produced by a party in possession of the private key.
+
+Signatures, in conjunction with TLS certificates, form the primary links in the 'chain of trust', the process whereby the TLS authentication service verifies the identity of a party in a secure message exchange.
+
+
+
  **Describe SSL/TLS encryption process.**
- **Describe the pros and cons of TLS Handshake**
- **Why do we need digital TLS/SSL certificates?** 
+
+Asymmetric key cryptography is used in the initial TLS handshake in order to exchange the necessary information so that both parties can generate a symmetric key, which is used thereafter for the bulk of the message exchange.
+
+The precise details of this process are heavily dependent on the cryptographic algorithms selected for the cipher suite. As an example, the RSA algorithm requires the client to generate a 'pre-master secret',  which it encrypts with the server's public key. Once the server receives this pre-master secret and decrypts it using its private key, both parties use the pre-master secret along with other pre-agreed parameters to generate an identical symmetric key. When the client sends the message containing the pre-master secret, it includes the markers `ChangeCipherSpec` and `Finished`. Once the server has generated the symmetric key, it responds with a message containing the same markers, and symmetric key cryptography can begin.
+
+The bulk of the TLS connection's message exchange then takes place using the symmetric key generated from the pre-master secret to encrypt and decrypt messages in both directions. The reason symmetric key cryptography is preferred for the sending of actual application data is that symmetric key algorithms are much faster and more efficient than asymmetric key algorithms.
+
+
+
+ **Why do we need digital TLS/SSL certificates?**
+
+TLS certificates serve a purpose in the encryption and authentication services offered by TLS.
+
+During the initial TLS handshake, the server's TLS certificate is sent by the server to the client during the `ServerHello` message. The client uses the server's public key contained in the certificate to securely exchange the symmetric key with the server.
+
+The TLS certificate is also used by the client to verify the identity of the server. The server sends a 'signature', a piece of significant data related to the current connection that has been encrypted with the server's private key. The client decrypts the signature with the server's public key and compares it to the significant data; this verifies that the server is in possession of the server's private key contained in the TLS certificate.
+
+However, to determine the authenticity of the TLS certificate itself, the client must follow the 'chain of trust', whose links are composed of further signatures.
+
+The TLS certification system is hierarchical. Root Certificate Authorities (Root CAs) issue TLS certificates to Intermediate CAs. The Intermediate CAs issue TLS certificates to the actual web servers we visit.
+
+The TLS certificate the client receives from the server is signed by the Intermediate CA. The client obtains the Intermediate CAs certificate, which includes its public key, and decrypts the signature using the Intermediate CAs public key. If the decrypted signature matches the data in the server's certificate, then the certificate must have been issued by the signing Intermediate CA.
+
+The client then needs to verify the authenticity of the Intermediate CAs TLS certificate. This is signed by the issuing Root CA. The client uses the Root CA's public key, contained in the Root CAs certificate, to decrypt the signature and compare it to the data in the Intermediate CA's certificate; if they match, then the Root CA must have issued the Intermediate CA's certificate.
+
+The Root CA's certificate is self-signed, meaning that this is where the chain of trust stops. A modern web browser maintains its own list of Root CAs, since there are very few of them, and so verification of the Root CA's identity is essentially hard-coded into these clients. 
+
  **What is it CA hierarchy and what is its role in providing secure message transfer?**
+
  **What is Cipher Suites and what do we need it for?**
+
+The cipher suite is the set of cryptographic algorithms used throughout the duration of a TLS connection for the various tasks involved in secure message transfer.
+
+In its initial `ClientHello` message, during the TLS handshake, the client sends a list of the algorithms it can use to the server. The server picks its preferred algorithms from this list, and the `ServerHello` message it sends in response sets the cipher suite.
+
+Thereafter, the cipher suite determines exactly how processes such as key exchange, the symmetric key cryptography, and message integrity verification are carried out.
+
+Without an agreed-upon cipher suite, the client and server would essentially be unable to speak a common language for secure communication.
+
  **How does TLS add a security layer to HTTP?**
+
+
+
  **Compare HTTP and HTTPS.**
+
+HTTPS is the secure version of HTTP, using Transport Layer Security (TLS) to provide secure message exchange with encryption, authentication, and integrity services.
+
+HTTPS is less efficient than HTTP, due to the encryption and decryption processes and message integrity checks. The initial TLS handshake that establishes a secure connection adds up to two round-trips of latency. However, for an increasing majority of websites and web applications, the ability to prevent data stealing attacks such as session hijacking is worth this decrease in performance. This is especially important for commercial and financial websites.
+
  **Does HTTPS use other protocols?** 
+
+HTTPS uses the Transport Layer Security (TLS) protocol
+
  **How do you know a website uses HTTPS?**
+
+On modern web browsers, a locked padlock icon is displayed next to the URL in the address bar.
+
  **Give examples of some protocols that would be used when a user interacts with a banking website. What would be the role of those protocols?** 
+
+
+
  **What is server-side infrastructure? What are its basic components?**
  **What is a server? What is its role?** 
  **What are optimizations that developers can do in order to improve performance and minimize latency?**
